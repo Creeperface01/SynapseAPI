@@ -1,6 +1,6 @@
 package org.itxtech.synapseapi.runnable;
 
-import cn.nukkit.network.protocol.ChangeDimensionPacket;
+import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ChangeDimensionPacket;
 import org.itxtech.synapseapi.SynapsePlayer;
 
 /**

@@ -10,12 +10,15 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
+import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Zlib;
 import co.aikar.timings.Timing;
 import co.aikar.timings.TimingsManager;
 import com.google.gson.Gson;
 import org.itxtech.synapseapi.event.player.SynapsePlayerCreationEvent;
 import org.itxtech.synapseapi.messaging.StandardMessenger;
+import org.itxtech.synapseapi.multiprotocol.PacketRegister;
+import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 import org.itxtech.synapseapi.network.SynLibInterface;
 import org.itxtech.synapseapi.network.SynapseInterface;
 import org.itxtech.synapseapi.network.protocol.spp.*;
@@ -39,6 +42,7 @@ public class SynapseEntry {
     private String serverIp;
     private int port;
     private boolean isMainServer;
+    private boolean isLobbyServer;
     private String password;
     private SynapseInterface synapseInterface;
     private boolean verified = false;
@@ -49,11 +53,14 @@ public class SynapseEntry {
     private ClientData clientData;
     private String serverDescription;
 
-    public SynapseEntry(SynapseAPI synapse, String serverIp, int port, boolean isMainServer, String password, String serverDescription) {
+    private long lastNemisysUpdate = 0;
+
+    public SynapseEntry(SynapseAPI synapse, String serverIp, int port, boolean isMainServer, boolean isLobbyServer, String password, String serverDescription) {
         this.synapse = synapse;
         this.serverIp = serverIp;
         this.port = port;
         this.isMainServer = isMainServer;
+        this.isLobbyServer = isLobbyServer;
         this.password = password;
         if (this.password.length() != 16) {
             synapse.getLogger().warning("You must use a 16 bit length key!");
@@ -67,6 +74,8 @@ public class SynapseEntry {
         this.synLibInterface = new SynLibInterface(this.synapseInterface);
         this.lastUpdate = System.currentTimeMillis();
         this.lastRecvInfo = System.currentTimeMillis();
+        this.lastNemisysUpdate = System.currentTimeMillis();
+
         this.getSynapse().getServer().getScheduler().scheduleRepeatingTask(SynapseAPI.getInstance(), new Ticker(this), 1);
 
         Thread ticker = new Thread(new AsyncTicker());
@@ -183,6 +192,7 @@ public class SynapseEntry {
         ConnectPacket pk = new ConnectPacket();
         pk.password = this.password;
         pk.isMainServer = this.isMainServer();
+        pk.isLobbyServer = isLobbyServer;
         pk.description = this.serverDescription;
         pk.maxPlayers = this.getSynapse().getServer().getMaxPlayers();
         pk.protocol = SynapseInfo.CURRENT_PROTOCOL;
@@ -225,9 +235,13 @@ public class SynapseEntry {
         public void run() {
             PlayerLoginPacket playerLoginPacket;
             while ((playerLoginPacket = playerLoginQueue.poll()) != null) {
-                SynapsePlayerCreationEvent ev = new SynapsePlayerCreationEvent(synLibInterface, SynapsePlayer.class, SynapsePlayer.class, new Random().nextLong(), playerLoginPacket.address, playerLoginPacket.port);
+                int protocol = playerLoginPacket.protocol;
+
+                Class<? extends SynapsePlayer> clazz = protocol <= org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo.CURRENT_PROTOCOL ? SynapsePlayer11.class : SynapsePlayer.class;
+                SynapsePlayerCreationEvent ev = new SynapsePlayerCreationEvent(synLibInterface, clazz, clazz, new Random().nextLong(), playerLoginPacket.address, playerLoginPacket.port);
                 getSynapse().getServer().getPluginManager().callEvent(ev);
-                Class<? extends SynapsePlayer> clazz = ev.getPlayerClass();
+                clazz = ev.getPlayerClass();
+
                 try {
                     Constructor constructor = clazz.getConstructor(SourceInterface.class, SynapseEntry.class, Long.class, String.class, int.class);
                     SynapsePlayer player = (SynapsePlayer) constructor.newInstance(synLibInterface, this.entry, ev.getClientId(), ev.getAddress(), ev.getPort());
@@ -279,10 +293,12 @@ public class SynapseEntry {
         }*/
 
         long finalTime = System.currentTimeMillis();
-        long usedTime = finalTime - time;
+        //long usedTime = finalTime - time;
         //this.getSynapse().getServer().getLogger().warning(time + " -> threadTick 用时 " + usedTime + " 毫秒");
-        if(((finalTime - this.lastUpdate) >= 30000) && this.synapseInterface.isConnected()){  //30 seconds timeout
+        if(((finalTime - this.lastNemisysUpdate) >= 30000) && this.synapseInterface.isConnected()){  //30 seconds timeout
+            this.lastNemisysUpdate = finalTime;
             this.synapseInterface.reconnect();
+            this.connect();
         }
     }
 
@@ -304,6 +320,7 @@ public class SynapseEntry {
     private final Queue<RedirectPacketEntry> redirectPacketQueue = new LinkedBlockingQueue<>();
 
     public void handleDataPacket(SynapseDataPacket pk) {
+        //MainLogger.getLogger().info("packet: "+pk.getClass().getName());
         this.handleDataPacketTiming.startTiming();
         //this.getSynapse().getLogger().warning("Received packet " + pk.pid() + "(" + pk.getClass().getSimpleName() + ") from " + this.serverIp + ":" + this.port);
         switch (pk.pid()) {
@@ -339,19 +356,23 @@ public class SynapseEntry {
                 }
                 break;
             case SynapseInfo.PLAYER_LOGIN_PACKET:
-                this.playerLoginQueue.offer((PlayerLoginPacket)pk);
+                this.playerLoginQueue.offer((PlayerLoginPacket) pk);
                 break;
             case SynapseInfo.REDIRECT_PACKET:
                 RedirectPacket redirectPacket = (RedirectPacket) pk;
+
                 UUID uuid = redirectPacket.uuid;
                 if (this.players.containsKey(uuid)) {
-                    DataPacket pk0 = this.getSynapse().getPacket(redirectPacket.mcpeBuffer);
+                    SynapsePlayer player = this.players.get(uuid);
+                    DataPacket pk0 = PacketRegister.getFullPacket(redirectPacket.mcpeBuffer, player.getProtocolGroup());
+
                     if (pk0 != null) {
+                        //MainLogger.getLogger().info("Receive: "+pk0.getClass().getName());
                         this.handleRedirectPacketTiming.startTiming();
-                        pk0.decode();
-                        SynapsePlayer player = this.players.get(uuid);
+                        //if (pk0.pid() == ProtocolInfo.BATCH_PACKET) pk0.setOffset(1);
+                        //pk0.decode(); //already decoded
                         if (pk0.pid() == ProtocolInfo.BATCH_PACKET) {
-                            this.processBatch((BatchPacket) pk0).forEach(subPacket -> {
+                            this.processBatch((BatchPacket) pk0, player.getProtocolGroup()).forEach(subPacket -> {
                                 this.redirectPacketQueue.offer(new RedirectPacketEntry(player, subPacket));
                                 //Server.getInstance().getLogger().info("C => S  " + subPacket.getClass().getSimpleName());
                             });
@@ -363,12 +384,15 @@ public class SynapseEntry {
                 }
                 break;
             case SynapseInfo.PLAYER_LOGOUT_PACKET:
-                this.playerLogoutQueue.offer((PlayerLogoutPacket)pk);
+                this.playerLogoutQueue.offer((PlayerLogoutPacket) pk);
                 break;
             case SynapseInfo.PLUGIN_MESSAGE_PACKET:
                 PluginMessagePacket messagePacket = (PluginMessagePacket) pk;
 
                 this.synapse.getMessenger().dispatchIncomingMessage(this, messagePacket.channel, messagePacket.data);
+                break;
+            case SynapseInfo.HEARTBEAT_PACKET:
+                this.lastNemisysUpdate = System.currentTimeMillis();
                 break;
         }
         //this.handleDataPacketTiming.stopTiming();
@@ -383,11 +407,12 @@ public class SynapseEntry {
         }
     }
 
-    private List<DataPacket> processBatch(BatchPacket packet) {
+    private List<DataPacket> processBatch(BatchPacket packet, ProtocolGroup protocol) {
         byte[] data;
         try {
             data = Zlib.inflate(packet.payload, 64 * 1024 * 1024);
         } catch (Exception e) {
+            //MainLogger.getLogger().logException(e); //TODO: remove
             return new ArrayList<>();
         }
 
@@ -400,10 +425,11 @@ public class SynapseEntry {
 
                 DataPacket pk;
 
-                if ((pk = Server.getInstance().getNetwork().getPacket(buf[0])) != null) {
-                    pk.setBuffer(buf, 3);
+                if ((pk = PacketRegister.getPacket(buf[0], protocol)) != null) {
+                    pk.setBuffer(buf, protocol == ProtocolGroup.PROTOCOL_11 ? 1 : 3);
 
-                    pk.decode();
+                    PacketRegister.decodePacket(pk, protocol);
+                    //pk.decode();
 
                     packets.add(pk);
                 }
@@ -415,6 +441,7 @@ public class SynapseEntry {
                 Server.getInstance().getLogger().logException(e);
             }
         }
+
         return new ArrayList<>();
     }
 

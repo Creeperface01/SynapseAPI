@@ -1,7 +1,7 @@
 package org.itxtech.synapseapi.network.protocol.mcpe;
 
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
+import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo;
 
 public class SetHealthPacket extends DataPacket {
     public static final byte NETWORK_ID = ProtocolInfo.SET_HEALTH_PACKET;

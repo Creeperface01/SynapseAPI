@@ -61,6 +61,7 @@ public class SynapseInterface {
         if (!pk.isEncoded) {
             pk.encode();
         }
+
         this.client.pushMainToThreadPacket(pk);
     }
 

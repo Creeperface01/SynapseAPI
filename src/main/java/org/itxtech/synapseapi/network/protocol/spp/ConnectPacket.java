@@ -9,6 +9,7 @@ public class ConnectPacket extends SynapseDataPacket {
     public int protocol = SynapseInfo.CURRENT_PROTOCOL;
     public int maxPlayers;
     public boolean isMainServer;
+    public boolean isLobbyServer;
     public String description;
     public String password;
 
@@ -22,7 +23,8 @@ public class ConnectPacket extends SynapseDataPacket {
         this.reset();
         this.putInt(this.protocol);
         this.putInt(this.maxPlayers);
-        this.putByte(this.isMainServer ? (byte) 1 : (byte) 0);
+        this.putBoolean(this.isMainServer);
+        this.putBoolean(this.isLobbyServer);
         this.putString(this.description);
         this.putString(this.password);
     }
@@ -31,7 +33,8 @@ public class ConnectPacket extends SynapseDataPacket {
     public void decode() {
         this.protocol = this.getInt();
         this.maxPlayers = this.getInt();
-        this.isMainServer = this.getByte() == 1;
+        this.isMainServer = this.getBoolean();
+        this.isLobbyServer = this.getBoolean();
         this.description = this.getString();
         this.password = this.getString();
     }

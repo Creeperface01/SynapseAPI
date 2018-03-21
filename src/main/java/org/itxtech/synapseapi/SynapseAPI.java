@@ -1,10 +1,18 @@
 package org.itxtech.synapseapi;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.Listener;
+import cn.nukkit.event.server.BatchPacketsEvent;
 import cn.nukkit.network.RakNetInterface;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
+import org.itxtech.synapseapi.multiprotocol.PacketRegister;
+import org.itxtech.synapseapi.multiprotocol.protocol11.chunk.ChunkCompressor;
+import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting.CraftingManager11;
+import org.itxtech.synapseapi.multiprotocol.protocol11.item.Item11;
+import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.ConfigSection;
 import org.itxtech.synapseapi.messaging.Messenger;
@@ -12,11 +20,12 @@ import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.network.protocol.mcpe.SetHealthPacket;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * @author boybook
  */
-public class SynapseAPI extends PluginBase {
+public class SynapseAPI extends PluginBase implements Listener {
 
     public static boolean enable = true;
     private static SynapseAPI instance;
@@ -34,6 +43,8 @@ public class SynapseAPI extends PluginBase {
         return autoConnect;
     }
 
+    private CraftingManager11 craftingManager;
+
     @Override
     public void onLoad() {
         instance = this;
@@ -44,6 +55,18 @@ public class SynapseAPI extends PluginBase {
         this.getServer().getNetwork().registerPacket(ProtocolInfo.SET_HEALTH_PACKET, SetHealthPacket.class);
         this.messenger = new StandardMessenger();
         loadEntries();
+
+        this.getServer().getPluginManager().registerEvents(this, this);
+
+        saveResource("recipes11.json", true);
+        new ChunkCompressor().init();
+        PacketRegister.init();
+        this.craftingManager = new CraftingManager11(this);
+        Item11.init();
+    }
+
+    public CraftingManager11 getCraftingManager() {
+        return craftingManager;
     }
 
     public boolean isUseLoadingScreen() {
@@ -116,12 +139,13 @@ public class SynapseAPI extends PluginBase {
                 String serverIp = section.getString("server-ip", "127.0.0.1");
                 int port = section.getInt("server-port", 10305);
                 boolean isMainServer = section.getBoolean("isMainServer");
+                boolean isLobbyServer = section.getBoolean("isLobbyServer");
                 String password = section.getString("password");
                 String serverDescription = section.getString("description");
                 this.loadingScreen = section.getBoolean("loadingScreen", true);
                 this.autoConnect = section.getBoolean("autoConnect", true);
                 if (this.autoConnect) {
-                    this.addSynapseAPI(new SynapseEntry(this, serverIp, port, isMainServer, password, serverDescription));
+                    this.addSynapseAPI(new SynapseEntry(this, serverIp, port, isMainServer, isLobbyServer, password, serverDescription));
                 }
             }
 
@@ -130,5 +154,47 @@ public class SynapseAPI extends PluginBase {
 
     public Messenger getMessenger() {
         return messenger;
+    }
+
+    @EventHandler
+    public void onBatchPackets(BatchPacketsEvent e) {
+        e.setCancelled();
+       /* Set<DataPacket> sortedPackets = new HashSet<>();
+        Set<DataPacket> sortedPackets11 = new HashSet<>();*/
+
+        DataPacket[] packets = e.getPackets();
+        Player[] players = e.getPlayers();
+        HashMap<SynapseEntry, List<Player>> map = new HashMap<>();
+
+        for(Player p : players) {
+            SynapsePlayer player = (SynapsePlayer) p;
+
+            SynapseEntry entry = player.getSynapseEntry();
+            List<Player> list = map.get(entry);
+            if(list == null) {
+                list = new ArrayList<>();
+            }
+
+            list.add(player);
+            map.put(entry, list);
+        }
+
+        for(Entry<SynapseEntry, List<Player>> entry : map.entrySet()) {
+            entry.getKey().getSynapseInterface().getPutPacketThread().addMainToThreadBroadcast(entry.getValue().stream().toArray(Player[]::new), packets);
+        }
+
+        /*for(DataPacket pk : packets) {
+            if(pk instanceof Packet11) {
+                sortedPackets11.add(pk);
+                sortedPackets.add(((Packet11) pk).toDefault());
+            } else {
+                sortedPackets.add(pk);
+                DataPacket compatible = PacketRegister.getCompatiblePacket(pk, 113, true);
+
+                if(compatible != null) {
+                    sortedPackets11.add(compatible);
+                }
+            }
+        }*/
     }
 }

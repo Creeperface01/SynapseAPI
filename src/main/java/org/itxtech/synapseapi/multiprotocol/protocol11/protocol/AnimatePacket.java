@@ -1,0 +1,62 @@
+package org.itxtech.synapseapi.multiprotocol.protocol11.protocol;
+
+import cn.nukkit.network.protocol.DataPacket;
+import org.itxtech.synapseapi.utils.ClassUtils;
+
+/**
+ * @author Nukkit Project Team
+ */
+public class AnimatePacket extends Packet11 {
+
+    public static final byte NETWORK_ID = ProtocolInfo.ANIMATE_PACKET;
+
+    public long eid;
+    public int action;
+    public float unknown;
+
+    public AnimatePacket fromDefault(DataPacket pkk) {
+        ClassUtils.requireInstance(pkk, cn.nukkit.network.protocol.AnimatePacket.class);
+
+        cn.nukkit.network.protocol.AnimatePacket pk = (cn.nukkit.network.protocol.AnimatePacket) pkk;
+        this.eid = pk.eid;
+        this.action = pk.action;
+        this.unknown = pk.unknown;
+        return this;
+    }
+
+    public cn.nukkit.network.protocol.AnimatePacket toDefault() {
+        cn.nukkit.network.protocol.AnimatePacket pk = new cn.nukkit.network.protocol.AnimatePacket();
+        pk.eid = eid;
+        pk.action = action;
+        pk.unknown = unknown;
+        return pk;
+    }
+
+    @Override
+    public void decode() {
+        this.action = (int) this.getUnsignedVarInt();
+        this.eid = getVarLong();
+        if ((this.action & 0x80) != 0) {
+            this.unknown = this.getLFloat();
+        }
+    }
+
+    @Override
+    public void encode() {
+        this.reset();
+        this.putUnsignedVarInt(this.action);
+        this.putVarLong(this.eid);
+        if ((this.action & 0x80) != 0) {
+            this.putLFloat(this.unknown);
+        }
+    }
+
+    @Override
+    public byte pid() {
+        return NETWORK_ID;
+    }
+
+    public static Class<? extends DataPacket> getDefaultPacket() {
+        return cn.nukkit.network.protocol.AnimatePacket.class;
+    }
+}
