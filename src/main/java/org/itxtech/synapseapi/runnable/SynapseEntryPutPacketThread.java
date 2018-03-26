@@ -3,11 +3,8 @@ package org.itxtech.synapseapi.runnable;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.math.NukkitMath;
-import cn.nukkit.network.protocol.*;
-import cn.nukkit.network.protocol.AddPlayerPacket;
 import cn.nukkit.network.protocol.BatchPacket;
-import cn.nukkit.network.protocol.PlayerListPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
+import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Zlib;
@@ -15,14 +12,12 @@ import org.itxtech.synapseapi.SynapseAPI;
 import org.itxtech.synapseapi.SynapsePlayer;
 import org.itxtech.synapseapi.multiprotocol.PacketRegister;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
-import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.*;
-import org.itxtech.synapseapi.multiprotocol.protocol1210.protocol.AddItemEntity;
+import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.Packet11;
 import org.itxtech.synapseapi.network.SynapseInterface;
 import org.itxtech.synapseapi.network.protocol.spp.RedirectPacket;
 
 import java.io.ByteArrayOutputStream;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.Deflater;
 
@@ -54,7 +49,7 @@ public class SynapseEntryPutPacketThread extends Thread {
         this.start();
     }
 
-    public void addMainToThread(Player player, DataPacket packet, boolean needACK, boolean immediate) {
+    public void addMainToThread(SynapsePlayer player, DataPacket packet, boolean needACK, boolean immediate) {
         this.queue.offer(new Entry(player, packet, needACK, immediate));
         //Server.getInstance().getLogger().debug("SynapseEntryPutPacketThread Offer: " + packet.getClass().getSimpleName());
     }
@@ -80,7 +75,7 @@ public class SynapseEntryPutPacketThread extends Thread {
             packetloop:
             while ((entry = queue.poll()) != null) {
                 try {
-                    if (!entry.player.closed || entry.immediate) {
+                    if (!entry.player.closed || entry.immediate || entry.player.transfering) {
                         RedirectPacket pk = new RedirectPacket();
                         pk.uuid = entry.player.getUniqueId();
                         pk.direct = entry.immediate;
@@ -319,11 +314,12 @@ public class SynapseEntryPutPacketThread extends Thread {
     }
 
     private static class Entry {
-        private Player player;
+        private SynapsePlayer player;
         private DataPacket packet;
         private boolean needACK;
         private boolean immediate;
-        public Entry(Player player, DataPacket packet, boolean needACK, boolean immediate) {
+
+        public Entry(SynapsePlayer player, DataPacket packet, boolean needACK, boolean immediate) {
             this.player = player;
             this.packet = packet;
             this.needACK = needACK;

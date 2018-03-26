@@ -8,15 +8,15 @@ import cn.nukkit.event.server.BatchPacketsEvent;
 import cn.nukkit.network.RakNetInterface;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.utils.ConfigSection;
+import org.itxtech.synapseapi.messaging.Messenger;
+import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.multiprotocol.PacketRegister;
 import org.itxtech.synapseapi.multiprotocol.protocol11.chunk.ChunkCompressor;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting.CraftingManager11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.item.Item11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo;
-import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.ConfigSection;
-import org.itxtech.synapseapi.messaging.Messenger;
-import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.network.protocol.mcpe.SetHealthPacket;
 
 import java.util.*;
@@ -90,7 +90,20 @@ public class SynapseAPI extends PluginBase implements Listener {
     }
 
     public void shutdownAll() {
+        for (Player p : getServer().getOnlinePlayers().values()) {
+            if (p instanceof SynapsePlayer) {
+                ((SynapsePlayer) p).transferToLobby();
+            }
+        }
+
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+
+        }
+
         for (SynapseEntry entry : new ArrayList<>(this.synapseEntries.values())) {
+
             entry.shutdown();
         }
     }

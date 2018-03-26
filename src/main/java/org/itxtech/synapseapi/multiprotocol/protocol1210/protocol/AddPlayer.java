@@ -1,7 +1,6 @@
 package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
 
 import cn.nukkit.network.protocol.AddPlayerPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.Binary;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;

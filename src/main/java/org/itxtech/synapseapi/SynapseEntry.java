@@ -10,7 +10,6 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
-import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Zlib;
 import co.aikar.timings.Timing;
 import co.aikar.timings.TimingsManager;
@@ -112,6 +111,8 @@ public class SynapseEntry {
 
     public void shutdown() {
         if (this.verified) {
+
+
             DisconnectPacket pk = new DisconnectPacket();
             pk.type = DisconnectPacket.TYPE_GENERIC;
             pk.message = "Server closed";

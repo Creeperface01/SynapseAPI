@@ -18,7 +18,6 @@ import cn.nukkit.math.NukkitMath;
 import cn.nukkit.nbt.tag.*;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.*;
-import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.TextFormat;
 import co.aikar.timings.Timing;
@@ -27,7 +26,6 @@ import lombok.Getter;
 import org.itxtech.synapseapi.event.player.SynapsePlayerConnectEvent;
 import org.itxtech.synapseapi.event.player.SynapsePlayerTransferEvent;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
-import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.Packet11;
 import org.itxtech.synapseapi.network.protocol.spp.FastPlayerListPacket;
 import org.itxtech.synapseapi.network.protocol.spp.PlayerLoginPacket;
 import org.itxtech.synapseapi.network.protocol.spp.TransferPacket;
@@ -53,6 +51,7 @@ public class SynapsePlayer extends Player {
 
     public AtomicBoolean logPackets = new AtomicBoolean(false); //TODO: remove
     public CrashLog crashLog = new CrashLog();
+    public boolean transfering;
 
     @Getter
     protected ProtocolGroup protocolGroup;
@@ -376,6 +375,8 @@ public class SynapsePlayer extends Player {
     }
 
     public boolean transferToLobby() {
+        this.transfering = true;
+
         for (Entity entity : this.getLevel().getEntities()) {
             if (entity.getViewers().containsKey(this.getLoaderId())) {
                 entity.despawnFrom(this);
@@ -400,6 +401,7 @@ public class SynapsePlayer extends Player {
     public boolean transfer(String hash, boolean loadScreen) {
         ClientData clients = this.getSynapseEntry().getClientData();
         Entry clientData = clients.clientList.get(hash);
+        this.transfering = true;
 
         if (clientData != null) {
             SynapsePlayerTransferEvent event = new SynapsePlayerTransferEvent(this, clientData);
