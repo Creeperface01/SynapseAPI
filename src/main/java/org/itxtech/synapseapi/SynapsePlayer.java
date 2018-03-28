@@ -383,10 +383,7 @@ public class SynapsePlayer extends Player {
             }
         }
 
-        TransferPacket pk = new TransferPacket();
-        pk.uuid = this.getUniqueId();
-        pk.clientHash = "lobby";
-        this.getSynapseEntry().sendDataPacket(pk);
+        getServer().getScheduler().scheduleDelayedTask(new TransferRunnable(this, "lobby"), 10);
         return true;
     }
 
@@ -417,7 +414,7 @@ public class SynapsePlayer extends Player {
                 }
             }
 
-            new TransferRunnable(this, hash).run();
+            getServer().getScheduler().scheduleDelayedTask(new TransferRunnable(this, hash), 10);
             return true;
         }
         return false;

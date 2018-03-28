@@ -1847,7 +1847,16 @@ public class SynapsePlayer11 extends SynapsePlayer {
                             org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ResourcePackStackPacket stackPacket = new org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ResourcePackStackPacket();
                             stackPacket.mustAccept = this.server.getForceResources();
                             stackPacket.resourcePackStack = this.server.getResourcePackManager().getResourceStack();
-                            this.dataPacket(stackPacket);
+
+                            if(stackPacket.resourcePackStack.length == 0) {
+                                if(preLoginEventTask.isFinished()) {
+                                    this.processLogin();
+                                } else {
+                                    this.shouldLogin = true;
+                                }
+                            } else {
+                                this.dataPacket(stackPacket);
+                            }
                             break;
                         case org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ResourcePackClientResponsePacket.STATUS_COMPLETED:
                             if(preLoginEventTask.isFinished()) {
