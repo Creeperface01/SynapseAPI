@@ -1,7 +1,6 @@
 package org.itxtech.synapseapi.multiprotocol.protocol11.utils;
 
 import cn.nukkit.utils.BinaryStream;
-import cn.nukkit.utils.ClientChainData;
 import cn.nukkit.utils.LoginChainData;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -167,7 +166,7 @@ public final class ClientChainData11 implements LoginChainData {
 
     private void decodeSkinData() {
         JsonObject skinToken = decodeToken(new String(bs.get(bs.getLInt())));
-        if(skinToken == null) return;
+        if (skinToken == null) return;
         if (skinToken.has("ClientRandomId")) this.clientId = skinToken.get("ClientRandomId").getAsLong();
         if (skinToken.has("ServerAddress")) this.serverAddress = skinToken.get("ServerAddress").getAsString();
         if (skinToken.has("DeviceModel")) this.deviceModel = skinToken.get("DeviceModel").getAsString();

@@ -1,7 +1,7 @@
 package org.itxtech.synapseapi.runnable;
 
-import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.PlayStatusPacket;
 import org.itxtech.synapseapi.SynapsePlayer;
+import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.PlayStatusPacket;
 
 /**
  * Created by boybook on 16/9/26.

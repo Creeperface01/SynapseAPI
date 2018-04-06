@@ -1,7 +1,6 @@
 package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
 
 import cn.nukkit.network.protocol.AnimatePacket;
-import cn.nukkit.network.protocol.PlayerActionPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;

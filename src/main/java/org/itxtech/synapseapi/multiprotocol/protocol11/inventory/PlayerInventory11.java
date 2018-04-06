@@ -384,13 +384,13 @@ public class PlayerInventory11 extends PlayerInventory {
     @Override
     public void sendContents(Player[] players) {
         ContainerSetContentPacket pk = new ContainerSetContentPacket();
-        pk.slots = new Item[this.getSize() +  + this.getHotbarSize()];
+        pk.slots = new Item[this.getSize() + +this.getHotbarSize()];
         for (int i = 0; i < this.getSize(); ++i) {
             pk.slots[i] = this.getItem(i);
         }
 
         //Because PE is stupid and shows 9 less slots than you send it, give it 9 dummy slots so it shows all the REAL slots.
-        for(int i = this.getSize(); i < this.getSize() + this.getHotbarSize(); ++i){
+        for (int i = this.getSize(); i < this.getSize() + this.getHotbarSize(); ++i) {
             pk.slots[i] = new ItemBlock(new BlockAir());
         }
 

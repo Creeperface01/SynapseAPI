@@ -53,6 +53,9 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
 
         if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
             putLInt(0);
+        }
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
             putBoolean(false);
             putVarInt(0);
             putBoolean(false);

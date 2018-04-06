@@ -23,7 +23,7 @@ public class ChunkCompressor implements ChunkCacher {
     public BatchPacket getData(int x, int z, byte[] payload, int protocol) {
         DataPacket pk;
 
-        if(protocol <= ProtocolInfo.CURRENT_PROTOCOL) {
+        if (protocol <= ProtocolInfo.CURRENT_PROTOCOL) {
             FullChunkDataPacket packet = new FullChunkDataPacket();
             packet.chunkX = x;
             packet.chunkZ = z;

@@ -7,7 +7,6 @@ import cn.nukkit.PlayerFood;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.data.CommandDataVersions;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.event.player.PlayerKickEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.server.DataPacketSendEvent;
@@ -28,7 +27,6 @@ import org.itxtech.synapseapi.event.player.SynapsePlayerTransferEvent;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 import org.itxtech.synapseapi.network.protocol.spp.FastPlayerListPacket;
 import org.itxtech.synapseapi.network.protocol.spp.PlayerLoginPacket;
-import org.itxtech.synapseapi.network.protocol.spp.TransferPacket;
 import org.itxtech.synapseapi.runnable.TransferRunnable;
 import org.itxtech.synapseapi.utils.ClientData;
 import org.itxtech.synapseapi.utils.ClientData.Entry;
@@ -377,13 +375,13 @@ public class SynapsePlayer extends Player {
     public boolean transferToLobby() {
         this.transfering = true;
 
-        for (Entity entity : this.getLevel().getEntities()) {
+        /*for (Entity entity : this.getLevel().getEntities()) {
             if (entity.getViewers().containsKey(this.getLoaderId())) {
                 entity.despawnFrom(this);
             }
-        }
+        }*/
 
-        getServer().getScheduler().scheduleDelayedTask(new TransferRunnable(this, "lobby"), 10);
+        new TransferRunnable(this, "lobby").run();
         return true;
     }
 
@@ -408,20 +406,20 @@ public class SynapsePlayer extends Player {
                 return false;
             }
 
-            for (Entity entity : this.getLevel().getEntities()) {
+            /*for (Entity entity : this.getLevel().getEntities()) { //should need to do that anymore
                 if (entity.getViewers().containsKey(this.getLoaderId())) {
                     entity.despawnFrom(this);
                 }
-            }
+            }*/
 
-            getServer().getScheduler().scheduleDelayedTask(new TransferRunnable(this, hash), 10);
+            new TransferRunnable(this, hash).run();
             return true;
         }
         return false;
     }
 
     public void forceSpawn() {
-        if(this.spawned && !this.isSpectator()) {
+        if (this.spawned && !this.isSpectator()) {
             if (this.skin.getData().length < 8192) {
                 throw new IllegalStateException(this.getClass().getSimpleName() + " must have a valid skin set");
             }
@@ -461,7 +459,7 @@ public class SynapsePlayer extends Player {
 
     @Override
     public void handleDataPacket(DataPacket packet) {
-        if(logPackets.get()) {
+        if (logPackets.get()) {
             this.crashLog.update();
         }
 
@@ -486,10 +484,10 @@ public class SynapsePlayer extends Player {
 
     @Override
     public boolean onUpdate(int currentTick) {
-        if(this.isAlive() && this.spawned && !this.closed) {
+        if (this.isAlive() && this.spawned && !this.closed) {
             this.forceSpawnTick++;
 
-            if(this.forceSpawnTick >= 10 * 20) {
+            if (this.forceSpawnTick >= 10 * 20) {
                 this.forceSpawnTick = 0;
                 this.forceSpawn();
             }
@@ -538,8 +536,8 @@ public class SynapsePlayer extends Player {
             return -1;
         }
 
-        if(!packet.isEncoded)
-        packet.encode();
+        if (!packet.isEncoded)
+            packet.encode();
         //this.server.getLogger().warning("Send to player: " + Binary.bytesToHexString(new byte[]{packet.getBuffer()[0]}) + "  len: " + packet.getBuffer().length);
         return this.interfaz.putPacket(this, packet, needACK);
     }
@@ -578,7 +576,7 @@ public class SynapsePlayer extends Player {
 
     @Override
     public void close(TextContainer message, String reason, boolean notify) {
-        if(message.getText().equals("timeout")) {
+        if (message.getText().equals("timeout")) {
             this.crashLog.post(this);
         }
 

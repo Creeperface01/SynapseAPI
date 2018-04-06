@@ -1,7 +1,7 @@
 package org.itxtech.synapseapi.runnable;
 
-import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ChangeDimensionPacket;
 import org.itxtech.synapseapi.SynapsePlayer;
+import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ChangeDimensionPacket;
 
 /**
  * Created by boybook on 16/9/26.

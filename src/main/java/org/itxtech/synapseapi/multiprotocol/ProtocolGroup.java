@@ -7,7 +7,8 @@ package org.itxtech.synapseapi.multiprotocol;
 public enum ProtocolGroup {
     PROTOCOL_11(113, 113),
     PROTOCOL_12(134, 160),
-    PROTOCOL_1210(200, 200);
+    PROTOCOL_1210(200, 222),
+    PROTOCOL_1213(223, 223);
 
     private final int minProtocol;
     private final int maxProtocol;
@@ -18,8 +19,8 @@ public enum ProtocolGroup {
     }
 
     public static ProtocolGroup from(int protocol) {
-        for(ProtocolGroup group : values()) {
-            if(protocol >= group.minProtocol && protocol <= group.maxProtocol) {
+        for (ProtocolGroup group : values()) {
+            if (protocol >= group.minProtocol && protocol <= group.maxProtocol) {
                 return group;
             }
         }

@@ -6,8 +6,13 @@ import cn.nukkit.network.protocol.*;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.MainLogger;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**

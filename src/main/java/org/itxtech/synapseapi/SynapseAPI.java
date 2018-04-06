@@ -179,12 +179,12 @@ public class SynapseAPI extends PluginBase implements Listener {
         Player[] players = e.getPlayers();
         HashMap<SynapseEntry, List<Player>> map = new HashMap<>();
 
-        for(Player p : players) {
+        for (Player p : players) {
             SynapsePlayer player = (SynapsePlayer) p;
 
             SynapseEntry entry = player.getSynapseEntry();
             List<Player> list = map.get(entry);
-            if(list == null) {
+            if (list == null) {
                 list = new ArrayList<>();
             }
 
@@ -192,7 +192,7 @@ public class SynapseAPI extends PluginBase implements Listener {
             map.put(entry, list);
         }
 
-        for(Entry<SynapseEntry, List<Player>> entry : map.entrySet()) {
+        for (Entry<SynapseEntry, List<Player>> entry : map.entrySet()) {
             entry.getKey().getSynapseInterface().getPutPacketThread().addMainToThreadBroadcast(entry.getValue().stream().toArray(Player[]::new), packets);
         }
 

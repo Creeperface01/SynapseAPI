@@ -1,6 +1,5 @@
 package org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting;
 
-import cn.nukkit.Server;
 import cn.nukkit.block.BlockAir;
 import cn.nukkit.inventory.*;
 import cn.nukkit.item.Item;
@@ -11,7 +10,6 @@ import cn.nukkit.utils.Utils;
 import org.itxtech.synapseapi.SynapseAPI;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.CraftingDataPacket;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -32,7 +30,7 @@ public class CraftingManager11 {
     public CraftingManager11(SynapseAPI api) {
         //api.saveResource("recipes11.json", true);
 
-        List<Map> recipes = new Config(api.getDataFolder()+"/recipes11.json", Config.JSON).getMapList("recipes");
+        List<Map> recipes = new Config(api.getDataFolder() + "/recipes11.json", Config.JSON).getMapList("recipes");
         MainLogger.getLogger().info("Loading recipes...");
         for (Map<String, Object> recipe : recipes) { //TODO: implement this better
             switch (toInt(recipe.get("type"))) {
@@ -240,7 +238,7 @@ public class CraftingManager11 {
     }
 
     public void registerRecipe(Recipe recipe) {
-        if(recipe instanceof CraftingRecipe) {
+        if (recipe instanceof CraftingRecipe) {
             ((CraftingRecipe) recipe).setId(Utils.dataToUUID(String.valueOf(++RECIPE_COUNT), String.valueOf(recipe.getResult().getId()), String.valueOf(recipe.getResult().getDamage()), String.valueOf(recipe.getResult().getCount()), Arrays.toString(recipe.getResult().getCompoundTag())));
         }
 

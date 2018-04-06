@@ -741,7 +741,7 @@ public class Item11 {
     }
 
     public static Item check(Item item) {
-        if(item == null) {
+        if (item == null) {
             return null;
         }
 

@@ -1,7 +1,6 @@
 package org.itxtech.synapseapi.multiprotocol;
 
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.utils.BinaryStream;
 import org.itxtech.synapseapi.multiprotocol.protocol1210.protocol.MVBinaryStream;
 
 /**

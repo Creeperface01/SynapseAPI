@@ -203,6 +203,7 @@ public class SynapseEntry {
     public class AsyncTicker implements Runnable {
         private long tickUseTime;
         private long lastWarning = 0;
+
         @Override
         public void run() {
             long startTime = System.currentTimeMillis();
@@ -210,9 +211,10 @@ public class SynapseEntry {
                 threadTick();
                 tickUseTime = System.currentTimeMillis() - startTime;
                 if (tickUseTime < 10) {
-                    try{
+                    try {
                         Thread.sleep(10 - tickUseTime);
-                    } catch (InterruptedException ignore) {}
+                    } catch (InterruptedException ignore) {
+                    }
                 } else if (System.currentTimeMillis() - lastWarning >= 5000) {
                     Server.getInstance().getLogger().warning("SynapseEntry<" + getHash() + "> Async Thread is overloading! TPS: " + getTicksPerSecond() + " tickUseTime: " + tickUseTime);
                     lastWarning = System.currentTimeMillis();
@@ -220,18 +222,21 @@ public class SynapseEntry {
                 startTime = System.currentTimeMillis();
             }
         }
+
         public double getTicksPerSecond() {
             long more = this.tickUseTime - 10;
             if (more < 0) return 100;
-            return NukkitMath.round(10f / (double)this.tickUseTime, 3) * 100;
+            return NukkitMath.round(10f / (double) this.tickUseTime, 3) * 100;
         }
     }
 
     public class Ticker implements Runnable {
         private SynapseEntry entry;
+
         private Ticker(SynapseEntry entry) {
             this.entry = entry;
         }
+
         @Override
         public void run() {
             PlayerLoginPacket playerLoginPacket;
@@ -264,7 +269,7 @@ public class SynapseEntry {
             PlayerLogoutPacket playerLogoutPacket;
             while ((playerLogoutPacket = playerLogoutQueue.poll()) != null) {
                 UUID uuid1;
-                if(players.containsKey(uuid1 = playerLogoutPacket.uuid)){
+                if (players.containsKey(uuid1 = playerLogoutPacket.uuid)) {
                     players.get(uuid1).close(playerLogoutPacket.reason, playerLogoutPacket.reason, true);
                     removePlayer(uuid1);
                 }
@@ -272,7 +277,7 @@ public class SynapseEntry {
         }
     }
 
-    public void threadTick(){
+    public void threadTick() {
         this.synapseInterface.process();
         if (!this.getSynapseInterface().isConnected() || !this.verified) return;
         long time = System.currentTimeMillis();
@@ -296,7 +301,7 @@ public class SynapseEntry {
         long finalTime = System.currentTimeMillis();
         //long usedTime = finalTime - time;
         //this.getSynapse().getServer().getLogger().warning(time + " -> threadTick 用时 " + usedTime + " 毫秒");
-        if(((finalTime - this.lastNemisysUpdate) >= 30000) && this.synapseInterface.isConnected()){  //30 seconds timeout
+        if (((finalTime - this.lastNemisysUpdate) >= 30000) && this.synapseInterface.isConnected()) {  //30 seconds timeout
             this.lastNemisysUpdate = finalTime;
             this.synapseInterface.reconnect();
             this.connect();
@@ -402,6 +407,7 @@ public class SynapseEntry {
     private class RedirectPacketEntry {
         private SynapsePlayer player;
         private DataPacket dataPacket;
+
         private RedirectPacketEntry(SynapsePlayer player, DataPacket dataPacket) {
             this.player = player;
             this.dataPacket = dataPacket;

@@ -1,19 +1,15 @@
 package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
 
-import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.AddItemEntityPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
-import cn.nukkit.utils.Binary;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
-import org.itxtech.synapseapi.utils.ClassUtils;
 
 /**
  * @author CreeperFace
  */
 public class AddItemEntity extends PacketDecoder<AddItemEntityPacket> {
 
-    public static final byte NETWORK_ID = 0x0f;
+    public static final byte NETWORK_ID = AddItemEntityPacket.NETWORK_ID;
 
     @Override
     public byte pid() {
@@ -28,10 +24,10 @@ public class AddItemEntity extends PacketDecoder<AddItemEntityPacket> {
         this.putSlot(pk.item);
         this.putVector3f(pk.x, pk.y, pk.z);
         this.putVector3f(pk.speedX, pk.speedY, pk.speedZ);
-        this.put(Binary.writeMetadata(pk.metadata));
+        this.putMetadata(pk.metadata, group);
 
-        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
-            this.putBoolean(false);
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+            this.putBoolean(false); //from fishing
         }
 
         pk.setBuffer(getBuffer());

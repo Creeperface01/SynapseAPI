@@ -55,7 +55,7 @@ public class SynapseEntryPutPacketThread extends Thread {
     }
 
     public void addMainToThreadBroadcast(Player[] players, DataPacket[] packets) {
-        if(players.length == 0 || packets.length == 0) {
+        if (players.length == 0 || packets.length == 0) {
             return;
         }
 
@@ -80,99 +80,28 @@ public class SynapseEntryPutPacketThread extends Thread {
                         pk.uuid = entry.player.getUniqueId();
                         pk.direct = entry.immediate;
 
-                        /*if(entry.packet.pid() == UpdateAttributesPacket.NETWORK_ID) {
-                            MainLogger.getLogger().info("ENTITY: "+((UpdateAttributesPacket) entry.packet).entityId);
-                        }*/
-
-                        //MainLogger.getLogger().notice("PACKET: "+entry.packet.getClass().getName());
-                        entry.packet = PacketRegister.getCompatiblePacket(entry.packet, ((SynapsePlayer) entry.player).getProtocolGroup(), true);
+                        entry.packet = PacketRegister.getCompatiblePacket(entry.packet, entry.player.getProtocolGroup(), true);
 
                         if (entry.packet == null) {
-                            //MainLogger.getLogger().info("NULL PACKET");
                             continue;
                         }
 
-                        /*int pid = entry.packet.pid();
-                        switch (pid) {
-                            case ProtocolInfo.ADD_ENTITY_PACKET:
-                            case ProtocolInfo.MOVE_ENTITY_PACKET:
-                            case ProtocolInfo.SET_ENTITY_DATA_PACKET:
-                            case ProtocolInfo.SET_ENTITY_MOTION_PACKET:
-                            case ProtocolInfo.LEVEL_EVENT_PACKET:
-                            case ProtocolInfo.LEVEL_SOUND_EVENT_PACKET:
-                            case ProtocolInfo.ADD_ITEM_ENTITY_PACKET:
-                            case ProtocolInfo.UPDATE_ATTRIBUTES_PACKET:
-                            case ProtocolInfo.TEXT_PACKET:
-                            case ProtocolInfo.SET_TIME_PACKET:
-                            case ProtocolInfo.BATCH_PACKET:
-                                continue;
-                        }*/
+                        ProtocolGroup protocol = entry.player.getProtocolGroup();
 
-                        /*if(entry.packet.pid() != BatchPacket.NETWORK_ID && entry.packet.pid() != UpdateBlockPacket.NETWORK_ID) {
-                            MainLogger.getLogger().info("PACKET: " + entry.packet.getClass().getName());
-                        }*/
+                        PacketRegister.encodePacket(entry.packet, protocol);
+                        entry.packet.isEncoded = true;
 
-                        //entry.packet = DataPacketEidReplacer.replace(entry.packet, entry.player.getId(), Long.MAX_VALUE);
-                        //entry.packet = DataPacketEidReplacer.replace(entry.packet, this.getId(), Long.MAX_VALUE);
 
-                        /*if(entry.packet.pid() == UpdateAttributesPacket.NETWORK_ID) {
-                            System.out.println("ID: "+((UpdateAttributesPacket) entry.packet).entityId);
-                        }*/
-                        //System.out.println("packet: "+entry.packet.getClass().getName());
-
-                        ProtocolGroup protocol = ((SynapsePlayer)entry.player).getProtocolGroup();
-
-                        /*switch (entry.packet.pid()) {
-                            case PlayerListPacket.NETWORK_ID:
-                            case AddPlayerPacket.NETWORK_ID:
-                                continue packetloop;
-                        }*/
-
-                        if (!entry.packet.isEncoded) {
-                            PacketRegister.encodePacket(entry.packet, protocol);
-                            //entry.packet.encode();
-                            entry.packet.isEncoded = true;
+                        if (protocol != ProtocolGroup.PROTOCOL_11 && entry.packet instanceof Packet11) {
+                            MainLogger.getLogger().warning("SENDING 1.1 PACKET '" + entry.packet.getClass().getName() + "' TO PLAYER '" + entry.player.getName() + "' with protocol: " + entry.player.getProtocol());
                         }
 
-                        /*if(entry.packet instanceof BatchPacket) {
-                            for(DataPacket packet : PacketRegister.decodeBatch((BatchPacket) entry.packet)) {
-                                MainLogger.getLogger().notice("BATCH PACKET: "+packet.getClass().getName());
-                            }
-                        } else {*/
-                            //MainLogger.getLogger().notice("SEND PACKET: "+entry.packet.getClass().getName());
-                        //}
-
-                        if(protocol != ProtocolGroup.PROTOCOL_11 && entry.packet instanceof Packet11) {
-                            MainLogger.getLogger().warning("SENDING 1.1 PACKET '"+entry.packet.getClass().getName()+"' TO PLAYER '"+entry.player.getName()+"' with protocol: "+entry.player.getProtocol());
-                        }
-
-                        if (!(entry.packet instanceof BatchPacket) && this.isAutoCompress) {
-                            byte[] buffer = entry.packet.getBuffer();
-                            try {
-                                buffer = deflate(
-                                        Binary.appendBytes(Binary.writeUnsignedVarInt(buffer.length), buffer),
-                                        Server.getInstance().networkCompressionLevel);
-                                pk.mcpeBuffer = Binary.appendBytes((byte) 0xfe, buffer);
-                                /*if (entry.packet.pid() == ProtocolInfo.RESOURCE_PACKS_INFO_PACKET)
-                                    Server.getInstance().getLogger().notice("ResourcePacksInfoPacket length=" + buffer.length + " " + Binary.bytesToHexString(buffer));*/
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                            //Server.getInstance().getLogger().notice("S => C  " + entry.packet.getClass().getSimpleName());
-                        } else {
-                            pk.mcpeBuffer = entry.packet instanceof BatchPacket ? Binary.appendBytes((byte) 0xfe, ((BatchPacket) entry.packet).payload) : entry.packet.getBuffer();
-                        }
+                        pk.mcpeBuffer = entry.packet instanceof BatchPacket ? Binary.appendBytes((byte) 0xfe, ((BatchPacket) entry.packet).payload) : entry.packet.getBuffer();
                         this.synapseInterface.putPacket(pk);
 
-                        if(((SynapsePlayer) entry.player).logPackets.get()) { //TODO: remove
-                            ((SynapsePlayer) entry.player).crashLog.checkPacket(entry.packet);
+                        if ((entry.player).logPackets.get()) { //TODO: remove
+                            (entry.player).crashLog.checkPacket(entry.packet);
                         }
-                        //Server.getInstance().getLogger().warning("SynapseEntryPutPacketThread PutPacket");
-                        /*try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-
-                        }*/
                     }
                 } catch (Exception e) {
                     Server.getInstance().getLogger().alert("Catch exception when Synapse Entry Put Packet: " + e.getMessage());
@@ -185,102 +114,58 @@ public class SynapseEntryPutPacketThread extends Thread {
                 try {
                     Map<ProtocolGroup, List<DataPacket>> packets = new EnumMap<>(ProtocolGroup.class);
                     List<DataPacket> batch = new ArrayList<>();
-                    for(Player p : entry1.player) {
-                        packets.putIfAbsent(((SynapsePlayer)p).getProtocolGroup(), new ArrayList<>());
+
+                    for (Player p : entry1.player) {
+                        packets.putIfAbsent(((SynapsePlayer) p).getProtocolGroup(), new ArrayList<>());
                     }
 
-                    for(DataPacket targetPk : entry1.packet) {
-                        /*RedirectPacket pk = new RedirectPacket();
-                        pk.uuid = entry.player.getUniqueId();
-                        pk.direct = entry.immediate;*/
-
+                    for (DataPacket targetPk : entry1.packet) {
                         if (targetPk.pid() == BatchPacket.NETWORK_ID) {
                             batch.add(targetPk);
                             continue;
                         }
 
-                        for(ProtocolGroup protocol : packets.keySet()) {
+                        for (ProtocolGroup protocol : packets.keySet()) {
                             DataPacket packet = PacketRegister.getCompatiblePacket(targetPk, protocol, true);
 
-                            if(packet != null)
+                            if (packet != null) {
+                                PacketRegister.encodePacket(packet, protocol);
+                                packet.isEncoded = true;
                                 packets.get(protocol).add(packet);
+                            }
                         }
-                        /* packet = PacketRegister.getCompatiblePacket(targetPk, ProtocolInfo.CURRENT_PROTOCOL, true);
-
-                        //System.out.println("packet: "+packet.getClass().getName());
-                        if(packet != null) {
-                            packets.add(packet);
-                        }
-
-                        packet = PacketRegister.getCompatiblePacket(targetPk, org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo.CURRENT_PROTOCOL, true);
-
-                        if(packet != null) {
-                            packets11.add(packet);
-                        }*/
                     }
 
-                    Map<ProtocolGroup, byte[]> protocolMap = new EnumMap<>(ProtocolGroup.class);
+                    /*Map<ProtocolGroup, byte[]> protocolMap = new EnumMap<>(ProtocolGroup.class); //disable that due to nemisys decompression
                     for(Map.Entry<ProtocolGroup, List<DataPacket>> pkEntry : packets.entrySet()) {
                         BatchPacket packet = batchPackets(pkEntry.getValue().stream().toArray(DataPacket[]::new), pkEntry.getKey());
 
                         if(packet != null) {
                             protocolMap.put(pkEntry.getKey(), Binary.appendBytes((byte) 0xfe, packet.payload));
                         }
-                    }
+                    }*/
 
-                    /*BatchPacket packet = batchPackets(packets.stream().toArray(DataPacket[]::new));
-                    BatchPacket packet11 = batchPackets(packets11.stream().toArray(DataPacket[]::new));
-
-                    byte[] data = packet != null ? Binary.appendBytes((byte) 0xfe, packet.payload) : null;
-                    byte[] data11 = packet11 != null ? Binary.appendBytes((byte) 0xfe, packet11.payload) : null;*/
-
-                    for(Player player : entry1.player) {
+                    for (Player player : entry1.player) {
                         SynapsePlayer sPlayer = (SynapsePlayer) player;
-                        /*if(player.closed) {
-                            continue;
-                        }
+                        for (DataPacket packet : packets.get(sPlayer.getProtocolGroup())) {
+                            byte[] data = packet.getBuffer();
 
-                        byte[] dat;
-                        if(player.getProtocol() <= 113) {
-                            if(data11 == null) {
+                            if (data == null) {
                                 continue;
                             }
-                            if(((SynapsePlayer) player).logPackets.get()) { //TODO: remove
-                                for(DataPacket pack : packets11) {
+
+                            if (sPlayer.logPackets.get()) { //TODO: remove
+                                for (DataPacket pack : packets.get(sPlayer.getProtocolGroup())) {
                                     ((SynapsePlayer) player).crashLog.checkPacket(pack);
                                 }
                             }
 
-                            dat = data11;
-                        } else {
-                            if(data == null) {
-                                continue;
-                            }
-
-                            if(((SynapsePlayer) player).logPackets.get()) { //TODO: remove
-                                for(DataPacket pack : packets) {
-                                    ((SynapsePlayer) player).crashLog.checkPacket(pack);
-                                }
-                            }
-                            dat = data;
-                        }*/
-                        byte[] data = protocolMap.get(sPlayer.getProtocolGroup());
-
-                        if(data == null) {
-                            continue;
+                            RedirectPacket pk = new RedirectPacket();
+                            pk.protocol = player.getProtocol();
+                            pk.uuid = player.getUniqueId();
+                            pk.mcpeBuffer = data;
+                            this.synapseInterface.putPacket(pk);
                         }
-
-                        if(sPlayer.logPackets.get()) { //TODO: remove
-                            for(DataPacket pack : packets.get(sPlayer.getProtocolGroup())) {
-                                ((SynapsePlayer) player).crashLog.checkPacket(pack);
-                            }
-                        }
-
-                        RedirectPacket pk = new RedirectPacket();
-                        pk.protocol = player.getProtocol();
-                        pk.uuid = player.getUniqueId();
-                        pk.mcpeBuffer = data;
-                        this.synapseInterface.putPacket(pk);
                     }
                 } catch (Exception e) {
                     Server.getInstance().getLogger().alert("Catch exception when Synapse Entry Put Packet: " + e.getMessage());
@@ -289,7 +174,7 @@ public class SynapseEntryPutPacketThread extends Thread {
             }
 
             tickUseTime = System.currentTimeMillis() - start;
-            if (tickUseTime < 10){
+            if (tickUseTime < 10) {
                 try {
                     Thread.sleep(10 - tickUseTime);
                 } catch (InterruptedException e) {
@@ -300,7 +185,7 @@ public class SynapseEntryPutPacketThread extends Thread {
     }
 
     private byte[] deflate(byte[] data, int level) throws Exception {
-        if (deflater == null) throw new IllegalArgumentException("No deflate for level "+level+" !");
+        if (deflater == null) throw new IllegalArgumentException("No deflate for level " + level + " !");
         deflater.reset();
         deflater.setInput(data);
         deflater.finish();
@@ -340,7 +225,7 @@ public class SynapseEntryPutPacketThread extends Thread {
     public double getTicksPerSecond() {
         long more = this.tickUseTime - 10;
         if (more < 0) return 100;
-        return NukkitMath.round(10f / (double)this.tickUseTime, 3) * 100;
+        return NukkitMath.round(10f / (double) this.tickUseTime, 3) * 100;
     }
 
     private BatchPacket batchPackets(DataPacket[] packets, ProtocolGroup protocol) {
@@ -352,7 +237,6 @@ public class SynapseEntryPutPacketThread extends Thread {
                 if (!p.isEncoded) {
                     PacketRegister.encodePacket(p, protocol);
                     p.isEncoded = true;
-                    //p.encode();
                 }
                 byte[] buf = p.getBuffer();
                 payload[i * 2] = Binary.writeUnsignedVarInt(buf.length);

@@ -92,7 +92,7 @@ public class AdventureSettings11 extends AdventureSettings {
     public static AdventureSettings11 from(Player p, AdventureSettings settings) {
         AdventureSettings11 s = new AdventureSettings11(p);
 
-        for(Type t : Type.values()) {
+        for (Type t : Type.values()) {
             s.set(t, settings.get(t));
         }
 

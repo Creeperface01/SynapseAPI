@@ -1,7 +1,6 @@
 package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
 
 import cn.nukkit.network.protocol.AddPlayerPacket;
-import cn.nukkit.utils.Binary;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 
@@ -23,7 +22,7 @@ public class AddPlayer extends PacketDecoder<AddPlayerPacket> {
         this.putUUID(pk.uuid);
         this.putString(pk.username);
 
-        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
             this.putString(""); //third party name
             this.putVarInt(0); //platform id
         }
@@ -31,7 +30,7 @@ public class AddPlayer extends PacketDecoder<AddPlayerPacket> {
         this.putEntityUniqueId(pk.entityUniqueId);
         this.putEntityRuntimeId(pk.entityRuntimeId);
 
-        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
             this.putString(""); //platform chat id
         }
 
@@ -42,7 +41,7 @@ public class AddPlayer extends PacketDecoder<AddPlayerPacket> {
         this.putLFloat(pk.yaw);
         this.putSlot(pk.item);
 
-        this.put(Binary.writeMetadata(pk.metadata));
+        this.putMetadata(pk.metadata, group);
 
         pk.setBuffer(getBuffer());
         return getBuffer();

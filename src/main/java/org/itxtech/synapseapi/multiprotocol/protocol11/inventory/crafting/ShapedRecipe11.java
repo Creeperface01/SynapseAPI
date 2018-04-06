@@ -1,10 +1,7 @@
 package org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting;
 
-import cn.nukkit.Server;
 import cn.nukkit.inventory.CraftingManager;
 import cn.nukkit.inventory.CraftingRecipe;
-import cn.nukkit.inventory.Recipe;
-import cn.nukkit.inventory.ShapedRecipe;
 import cn.nukkit.item.Item;
 
 import java.util.HashMap;

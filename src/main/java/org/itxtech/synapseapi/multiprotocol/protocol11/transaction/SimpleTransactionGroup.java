@@ -132,7 +132,7 @@ public class SimpleTransactionGroup implements TransactionGroup {
         }
 
         List<InventoryAction> actions = new ArrayList<>();
-        for(Transaction t : this.getTransactions()) {
+        for (Transaction t : this.getTransactions()) {
             actions.add(new SlotChangeAction(t.getInventory(), t.getSlot(), t.getSourceItem(), t.getTargetItem()));
         }
 

@@ -2,7 +2,6 @@ package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
 
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.network.protocol.PlayerSkinPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 

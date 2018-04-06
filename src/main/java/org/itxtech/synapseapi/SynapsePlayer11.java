@@ -4,9 +4,10 @@ import cn.nukkit.AdventureSettings;
 import cn.nukkit.Player;
 import cn.nukkit.PlayerFood;
 import cn.nukkit.Server;
-import cn.nukkit.event.player.PlayerAsyncPreLoginEvent.LoginResult;
-import cn.nukkit.network.SourceInterface;
-import cn.nukkit.block.*;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockAir;
+import cn.nukkit.block.BlockDoor;
+import cn.nukkit.block.BlockNoteblock;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.blockentity.BlockEntityItemFrame;
 import cn.nukkit.blockentity.BlockEntitySign;
@@ -16,18 +17,24 @@ import cn.nukkit.command.data.CommandDataVersions;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.command.data.args.CommandArg;
 import cn.nukkit.command.data.args.CommandArgBlockVector;
-import cn.nukkit.entity.*;
+import cn.nukkit.entity.Attribute;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityInteractable;
 import cn.nukkit.entity.data.*;
 import cn.nukkit.entity.item.*;
 import cn.nukkit.entity.mob.EntityCreeper;
 import cn.nukkit.entity.projectile.*;
 import cn.nukkit.event.block.ItemFrameDropItemEvent;
 import cn.nukkit.event.block.SignChangeEvent;
-import cn.nukkit.event.entity.*;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageCause;
 import cn.nukkit.event.entity.EntityDamageEvent.DamageModifier;
+import cn.nukkit.event.entity.EntityShootBowEvent;
+import cn.nukkit.event.entity.ProjectileLaunchEvent;
 import cn.nukkit.event.inventory.*;
 import cn.nukkit.event.player.*;
+import cn.nukkit.event.player.PlayerAsyncPreLoginEvent.LoginResult;
 import cn.nukkit.event.player.PlayerInteractEvent.Action;
 import cn.nukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import cn.nukkit.event.server.DataPacketReceiveEvent;
@@ -52,10 +59,10 @@ import cn.nukkit.math.*;
 import cn.nukkit.metadata.MetadataValue;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.*;
+import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.AddPlayerPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.PlayerListPacket;
-import cn.nukkit.network.protocol.ResourcePacksInfoPacket;
 import cn.nukkit.network.protocol.types.ContainerIds;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.potion.Effect;
@@ -69,9 +76,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import org.itxtech.synapseapi.event.player.SynapsePlayerConnectEvent;
 import org.itxtech.synapseapi.event.player.SynapsePlayerTransferEvent;
+import org.itxtech.synapseapi.multiprotocol.PacketRegister;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 import org.itxtech.synapseapi.multiprotocol.protocol11.AdventureSettings11;
-import org.itxtech.synapseapi.multiprotocol.PacketRegister;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.PlayerInventory11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting.CraftingManager11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.*;
@@ -758,14 +765,12 @@ public class SynapsePlayer11 extends SynapsePlayer {
     }
 
     /**
-     *
      * Returns a client-friendly gamemode of the specified real gamemode
      * This function takes care of handling gamemodes known to MCPE (as of 1.1.0.3, that includes Survival, Creative and Adventure)
-     *
+     * <p>
      * TODO: remove this when Spectator Mode gets added properly to MCPE
-     *
      */
-    private static int getClientFriendlyGamemode(int gamemode){
+    private static int getClientFriendlyGamemode(int gamemode) {
         gamemode &= 0x03;
         if (gamemode == cn.nukkit.Player.SPECTATOR) {
             return cn.nukkit.Player.CREATIVE;
@@ -1288,10 +1293,10 @@ public class SynapsePlayer11 extends SynapsePlayer {
         return true;
     }
 
-    public void checkInteractNearby(){
+    public void checkInteractNearby() {
         int interactDistance = isCreative() ? 5 : 3;
-        if(canInteract(this, interactDistance)){
-            if(getEntityPlayerLookingAt(interactDistance) != null){
+        if (canInteract(this, interactDistance)) {
+            if (getEntityPlayerLookingAt(interactDistance) != null) {
                 EntityInteractable onInteract = getEntityPlayerLookingAt(interactDistance);
                 setButtonText(onInteract.getInteractButtonText());
             } else {
@@ -1399,7 +1404,6 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
         this.craftingGrid = new CraftingGrid(this);
     }
-
 
 
     @Override
@@ -1662,7 +1666,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                 }
             }
             //if (loadScreen && SynapseAPI.getInstance().isUseLoadingScreen()) {
-                //Load Screen
+            //Load Screen
                 /*this.getServer().getScheduler().scheduleDelayedTask(new SendChangeDimensionRunnable(this, 0), 1);
                 this.forceSendEmptyChunks();
                 this.getServer().getScheduler().scheduleDelayedTask(new SendPlayerSpawnRunnable(this), 10);
@@ -1848,8 +1852,8 @@ public class SynapsePlayer11 extends SynapsePlayer {
                             stackPacket.mustAccept = this.server.getForceResources();
                             stackPacket.resourcePackStack = this.server.getResourcePackManager().getResourceStack();
 
-                            if(stackPacket.resourcePackStack.length == 0) {
-                                if(preLoginEventTask.isFinished()) {
+                            if (stackPacket.resourcePackStack.length == 0) {
+                                if (preLoginEventTask.isFinished()) {
                                     this.processLogin();
                                 } else {
                                     this.shouldLogin = true;
@@ -1859,7 +1863,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                             }
                             break;
                         case org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ResourcePackClientResponsePacket.STATUS_COMPLETED:
-                            if(preLoginEventTask.isFinished()) {
+                            if (preLoginEventTask.isFinished()) {
                                 this.processLogin();
                             } else {
                                 this.shouldLogin = true;
@@ -1883,11 +1887,11 @@ public class SynapsePlayer11 extends SynapsePlayer {
                     this.dataPacket(dataPacket);
                     break;
                 case org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo.PLAYER_INPUT_PACKET:
-                    if(!this.isAlive() || !this.spawned){
+                    if (!this.isAlive() || !this.spawned) {
                         break;
                     }
                     org.itxtech.synapseapi.multiprotocol.protocol11.protocol.PlayerInputPacket ipk = (org.itxtech.synapseapi.multiprotocol.protocol11.protocol.PlayerInputPacket) packet;
-                    if(riding instanceof EntityMinecartAbstract){
+                    if (riding instanceof EntityMinecartAbstract) {
                         ((EntityMinecartEmpty) riding).setCurrentSpeed(ipk.motionY);
                     }
                     break;
@@ -2301,7 +2305,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                                 break;
                             }
                             if (target.getId() == Block.NOTEBLOCK) {
-                                ((BlockNoteblock)target).emitSound();
+                                ((BlockNoteblock) target).emitSound();
                                 break;
                             }
                             Block block = target.getSide(face);
@@ -2309,17 +2313,17 @@ public class SynapsePlayer11 extends SynapsePlayer {
                                 this.level.setBlock(block, new BlockAir(), true);
                                 break;
                             }
-                            if(!this.isCreative()){
+                            if (!this.isCreative()) {
                                 //improved this to take stuff like swimming, ladders, enchanted tools into account, fix wrong tool break time calculations for bad tools (pmmp/PocketMine-MP#211)
                                 //Done by lmlstarqaq
                                 double breakTime = Math.ceil(target.getBreakTime(this.inventory.getItemInHand(), this) * 20);
                                 if (breakTime > 0) {
                                     org.itxtech.synapseapi.multiprotocol.protocol11.protocol.LevelEventPacket pk = new org.itxtech.synapseapi.multiprotocol.protocol11.protocol.LevelEventPacket();
                                     pk.evid = org.itxtech.synapseapi.multiprotocol.protocol11.protocol.LevelEventPacket.EVENT_BLOCK_START_BREAK;
-                                    pk.x = (float)pos.x;
-                                    pk.y = (float)pos.y;
-                                    pk.z = (float)pos.z;
-                                    pk.data = (int)(65535 / breakTime);
+                                    pk.x = (float) pos.x;
+                                    pk.y = (float) pos.y;
+                                    pk.z = (float) pos.z;
+                                    pk.data = (int) (65535 / breakTime);
                                     this.getLevel().addChunkPacket(pos.getFloorX() >> 4, pos.getFloorZ() >> 4, pk);
                                 }
                             }
@@ -2332,9 +2336,9 @@ public class SynapsePlayer11 extends SynapsePlayer {
                         case org.itxtech.synapseapi.multiprotocol.protocol11.protocol.PlayerActionPacket.ACTION_STOP_BREAK:
                             org.itxtech.synapseapi.multiprotocol.protocol11.protocol.LevelEventPacket pk = new org.itxtech.synapseapi.multiprotocol.protocol11.protocol.LevelEventPacket();
                             pk.evid = org.itxtech.synapseapi.multiprotocol.protocol11.protocol.LevelEventPacket.EVENT_BLOCK_STOP_BREAK;
-                            pk.x = (float)pos.x;
-                            pk.y = (float)pos.y;
-                            pk.z = (float)pos.z;
+                            pk.x = (float) pos.x;
+                            pk.y = (float) pos.y;
+                            pk.z = (float) pos.z;
                             pk.data = 0;
                             this.getLevel().addChunkPacket(pos.getFloorX() >> 4, pos.getFloorZ() >> 4, pk);
                             break;
@@ -2710,7 +2714,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                         BlockEntity be = this.getLevel().getBlockEntity(new Vector3(pickRequestPacket.x, pickRequestPacket.y, pickRequestPacket.z));
                         if (be != null) {
                             CompoundTag nbt = be.getCleanedNBT();
-                            if(nbt != null){
+                            if (nbt != null) {
                                 Item item1 = this.getInventory().getItemInHand();
                                 item1.setCustomBlockData(nbt);
                                 item1.setLore("+(DATA)");
@@ -3724,6 +3728,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
     /**
      * Sets a subtitle for the next shown title
+     *
      * @param text Subtitle text
      */
     public void setSubtitle(String text) {
@@ -3742,8 +3747,9 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
     /**
      * Sets times for title animations
-     * @param fadeInTime For how long title fades in
-     * @param stayTime For how long title is shown
+     *
+     * @param fadeInTime  For how long title fades in
+     * @param stayTime    For how long title is shown
      * @param fadeOutTime For how long title fades out
      */
     public void setTitleAnimationTimes(int fadeInTime, int stayTime, int fadeOutTime) {
@@ -4197,8 +4203,8 @@ public class SynapsePlayer11 extends SynapsePlayer {
     /**
      * Creates and sends a BossBar to the player
      *
-     * @param text  The BossBar message
-     * @param length  The BossBar percentage
+     * @param text   The BossBar message
+     * @param length The BossBar percentage
      * @return bossBarId  The BossBar ID, you should store it if you want to remove or update the BossBar later
      */
     public long createBossBar(String text, int length) {
@@ -4233,7 +4239,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
         Attribute attr = Attribute.getAttribute(Attribute.MAX_HEALTH);
         attr.setMaxValue(100); // Max value - We need to change the max value first, or else the "setValue" will return a IllegalArgumentException
         attr.setValue(length); // Entity health
-        pkAttributes.entries = new Attribute[] { attr };
+        pkAttributes.entries = new Attribute[]{attr};
         this.dataPacket(pkAttributes);
 
         // And now we send the bossbar packet
@@ -4247,9 +4253,9 @@ public class SynapsePlayer11 extends SynapsePlayer {
     /**
      * Updates a BossBar
      *
-     * @param text  The new BossBar message
-     * @param length  The new BossBar length
-     * @param bossBarId  The BossBar ID
+     * @param text      The new BossBar message
+     * @param length    The new BossBar length
+     * @param bossBarId The BossBar ID
      */
     public void updateBossBar(String text, int length, long bossBarId) {
         // First we update the boss bar length
@@ -4258,7 +4264,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
         Attribute attr = Attribute.getAttribute(Attribute.MAX_HEALTH);
         attr.setMaxValue(100); // Max value - We need to change the max value first, or else the "setValue" will return a IllegalArgumentException
         attr.setValue(length); // Entity health
-        pkAttributes.entries = new Attribute[] { attr };
+        pkAttributes.entries = new Attribute[]{attr};
         this.dataPacket(pkAttributes);
         // And then the boss bar text
         org.itxtech.synapseapi.multiprotocol.protocol11.protocol.SetEntityDataPacket pkMetadata = new org.itxtech.synapseapi.multiprotocol.protocol11.protocol.SetEntityDataPacket();
@@ -4285,7 +4291,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
     /**
      * Removes a BossBar
      *
-     * @param bossBarId  The BossBar ID
+     * @param bossBarId The BossBar ID
      */
     public void removeBossBar(long bossBarId) {
         org.itxtech.synapseapi.multiprotocol.protocol11.protocol.RemoveEntityPacket pkRemove = new org.itxtech.synapseapi.multiprotocol.protocol11.protocol.RemoveEntityPacket();

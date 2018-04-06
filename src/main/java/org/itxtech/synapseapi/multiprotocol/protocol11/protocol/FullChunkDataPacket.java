@@ -1,6 +1,5 @@
 package org.itxtech.synapseapi.multiprotocol.protocol11.protocol;
 
-import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.network.protocol.DataPacket;
 import org.itxtech.synapseapi.utils.ClassUtils;
 
