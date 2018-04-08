@@ -1,6 +1,7 @@
 package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
 
 import cn.nukkit.network.protocol.AddItemEntityPacket;
+import cn.nukkit.utils.MainLogger;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 
@@ -17,11 +18,12 @@ public class AddItemEntity extends PacketDecoder<AddItemEntityPacket> {
     }
 
     @Override
-    public byte[] encode(ProtocolGroup group, cn.nukkit.network.protocol.AddItemEntityPacket pk) {
+    public byte[] encode(ProtocolGroup group, AddItemEntityPacket pk) {
         this.reset();
         this.putEntityUniqueId(pk.entityUniqueId);
         this.putEntityRuntimeId(pk.entityRuntimeId);
         this.putSlot(pk.item);
+        MainLogger.getLogger().info("Item: " + pk.item.toString());
         this.putVector3f(pk.x, pk.y, pk.z);
         this.putVector3f(pk.speedX, pk.speedY, pk.speedZ);
         this.putMetadata(pk.metadata, group);
@@ -35,7 +37,7 @@ public class AddItemEntity extends PacketDecoder<AddItemEntityPacket> {
     }
 
     @Override
-    public void decode(ProtocolGroup group, cn.nukkit.network.protocol.AddItemEntityPacket pk) {
+    public void decode(ProtocolGroup group, AddItemEntityPacket pk) {
         pk.decode();
     }
 }

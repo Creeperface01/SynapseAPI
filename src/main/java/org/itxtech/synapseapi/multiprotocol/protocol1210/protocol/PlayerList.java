@@ -1,6 +1,5 @@
 package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
 
-import cn.nukkit.entity.data.Skin.Cape;
 import cn.nukkit.network.protocol.PlayerListPacket;
 import cn.nukkit.network.protocol.PlayerListPacket.Entry;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
@@ -36,20 +35,6 @@ public class PlayerList extends PacketDecoder<PlayerListPacket> {
                 }
 
                 this.putSkin(entry.skin, group);
-                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
-                    this.putLInt(1); //always 1
-                }
-                Cape cape = entry.skin.getCape();
-                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
-                    if (cape.getData().length > 0) {
-                        putLInt(1);
-                        this.putByteArray(cape.getData());
-                    } else {
-                        putLInt(0);
-                    }
-                } else {
-                    this.putByteArray(cape.getData());
-                }
 
                 this.putString(entry.geometryModel);
                 this.putByteArray(entry.geometryData);
@@ -58,8 +43,6 @@ public class PlayerList extends PacketDecoder<PlayerListPacket> {
                 if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
                     this.putString(""); //platform chat id
                 }
-            } else {
-                putString("");
             }
         }
 

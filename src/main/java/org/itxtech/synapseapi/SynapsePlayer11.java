@@ -2842,17 +2842,16 @@ public class SynapsePlayer11 extends SynapsePlayer {
                                     JsonElement arg = commandStepPacket.args.get(par.name);
                                     if (arg != null) {
                                         switch (par.type) {
-                                            case CommandParameter.ARG_TYPE_TARGET:
+                                            case TARGET:
                                                 CommandArg rules = new Gson().fromJson(arg, CommandArg.class);
                                                 commandText += " " + rules.getRules()[0].getValue();
                                                 break;
-                                            case CommandParameter.ARG_TYPE_BLOCK_POS:
+                                            case POSITION:
                                                 CommandArgBlockVector bv = new Gson().fromJson(arg, CommandArgBlockVector.class);
                                                 commandText += " " + bv.getX() + " " + bv.getY() + " " + bv.getZ();
                                                 break;
-                                            case CommandParameter.ARG_TYPE_STRING:
-                                            case CommandParameter.ARG_TYPE_STRING_ENUM:
-                                            case CommandParameter.ARG_TYPE_RAW_TEXT:
+                                            case STRING:
+                                            case RAWTEXT:
                                                 String string = new Gson().fromJson(arg, String.class);
                                                 commandText += " " + string;
                                                 break;

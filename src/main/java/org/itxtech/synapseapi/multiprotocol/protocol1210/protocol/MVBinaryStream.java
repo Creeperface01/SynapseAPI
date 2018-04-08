@@ -18,10 +18,7 @@ public class MVBinaryStream extends BinaryStream {
     public void putSkin(Skin skin, ProtocolGroup protocol) {
         this.putString(skin.getModel());
         this.putByteArray(skin.getData());
-
-        if (protocol.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
-            this.putByteArray(skin.getCape().getData());
-        }
+        this.putByteArray(skin.getCape().getData());
     }
 
     public void putMetadata(EntityMetadata data, ProtocolGroup protocol) {
