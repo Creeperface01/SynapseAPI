@@ -13,6 +13,5 @@ public interface SynapseInfo {
     byte INFORMATION_PACKET = 0x07;
     byte TRANSFER_PACKET = 0x08;
     byte BROADCAST_PACKET = 0x09;
-    byte FAST_PLAYER_LIST_PACKET = 0x0a;
-    byte PLUGIN_MESSAGE_PACKET = 0x0b;
+    byte PLUGIN_MESSAGE_PACKET = 0x0a;
 }

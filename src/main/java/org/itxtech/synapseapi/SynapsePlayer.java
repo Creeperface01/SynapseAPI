@@ -25,7 +25,6 @@ import lombok.Getter;
 import org.itxtech.synapseapi.event.player.SynapsePlayerConnectEvent;
 import org.itxtech.synapseapi.event.player.SynapsePlayerTransferEvent;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
-import org.itxtech.synapseapi.network.protocol.spp.FastPlayerListPacket;
 import org.itxtech.synapseapi.network.protocol.spp.PlayerLoginPacket;
 import org.itxtech.synapseapi.runnable.TransferRunnable;
 import org.itxtech.synapseapi.utils.ClientData;
@@ -555,23 +554,6 @@ public class SynapsePlayer extends Player {
         }
 
         return this.interfaz.putPacket(this, packet, needACK, true);
-    }
-
-    public void sendFullPlayerListData(boolean self) {
-        FastPlayerListPacket pk = new FastPlayerListPacket();
-        pk.sendTo = this.getUniqueId();
-        pk.type = PlayerListPacket.TYPE_ADD;
-        List<FastPlayerListPacket.Entry> entries = new ArrayList<>();
-        for (Player p : this.getServer().getOnlinePlayers().values()) {
-            if (!self && p == this) {
-                continue;
-            }
-            entries.add(new FastPlayerListPacket.Entry(p.getUniqueId(), p.getId(), p.getDisplayName()));
-        }
-
-        pk.entries = entries.stream().toArray(FastPlayerListPacket.Entry[]::new);
-
-        this.getSynapseEntry().sendDataPacket(pk);
     }
 
     @Override
