@@ -196,6 +196,7 @@ public class PacketRegister {
                     PacketDecoder<DataPacket> dcd = ((PacketDecoder<DataPacket>) decoder.newInstance());
                     dcd.setBuffer(pk.getBuffer(), pk.getOffset());
                     dcd.decode(protocol, pk);
+                    return true;
                 }
             } catch (Exception e) {
                 MainLogger.getLogger().logException(e);
