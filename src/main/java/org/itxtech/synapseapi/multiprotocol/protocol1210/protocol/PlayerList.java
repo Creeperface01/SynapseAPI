@@ -25,7 +25,7 @@ public class PlayerList extends PacketDecoder<PlayerListPacket> {
         for (Entry entry : pk.entries) {
             this.putUUID(entry.uuid);
 
-            if (pk.type == cn.nukkit.network.protocol.PlayerListPacket.TYPE_ADD) {
+            if (pk.type == PlayerListPacket.TYPE_ADD) {
                 this.putVarLong(entry.entityId);
                 this.putString(entry.name);
 
@@ -40,7 +40,7 @@ public class PlayerList extends PacketDecoder<PlayerListPacket> {
                 this.putByteArray(entry.geometryData);
                 this.putString(entry.xboxUserId);
 
-                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
+                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
                     this.putString(""); //platform chat id
                 }
             }

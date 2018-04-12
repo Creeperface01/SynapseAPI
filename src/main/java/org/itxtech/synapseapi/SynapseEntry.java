@@ -1,6 +1,7 @@
 package org.itxtech.synapseapi;
 
 import cn.nukkit.Nukkit;
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.math.NukkitMath;
 import cn.nukkit.network.SourceInterface;
@@ -51,15 +52,17 @@ public class SynapseEntry {
     private SynLibInterface synLibInterface;
     private ClientData clientData;
     private String serverDescription;
+    private boolean transferOnShutdown;
 
     private long lastNemisysUpdate = 0;
 
-    public SynapseEntry(SynapseAPI synapse, String serverIp, int port, boolean isMainServer, boolean isLobbyServer, String password, String serverDescription) {
+    public SynapseEntry(SynapseAPI synapse, String serverIp, int port, boolean isMainServer, boolean isLobbyServer, boolean transferOnShutdown, String password, String serverDescription) {
         this.synapse = synapse;
         this.serverIp = serverIp;
         this.port = port;
         this.isMainServer = isMainServer;
         this.isLobbyServer = isLobbyServer;
+        this.transferOnShutdown = transferOnShutdown;
         this.password = password;
         if (this.password.length() != 16) {
             synapse.getLogger().warning("You must use a 16 bit length key!");
@@ -194,6 +197,7 @@ public class SynapseEntry {
         pk.password = this.password;
         pk.isMainServer = this.isMainServer();
         pk.isLobbyServer = isLobbyServer;
+        pk.transferShutdown = transferOnShutdown;
         pk.description = this.serverDescription;
         pk.maxPlayers = this.getSynapse().getServer().getMaxPlayers();
         pk.protocol = SynapseInfo.CURRENT_PROTOCOL;
@@ -305,20 +309,21 @@ public class SynapseEntry {
             this.lastNemisysUpdate = finalTime;
             this.synapseInterface.reconnect();
             this.connect();
+            this.removeAllPlayers();
         }
     }
 
     public void removePlayer(SynapsePlayer player) {
-        UUID uuid = player.getUniqueId();
-        if (this.players.containsKey(uuid)) {
-            this.players.remove(uuid);
-        }
+        removePlayer(player.getUniqueId());
     }
 
     public void removePlayer(UUID uuid) {
-        if (this.players.containsKey(uuid)) {
             this.players.remove(uuid);
-        }
+    }
+
+    public void removeAllPlayers() {
+        this.players.values().forEach(Player::close);
+        this.players.clear();
     }
 
     private final Queue<PlayerLoginPacket> playerLoginQueue = new LinkedBlockingQueue<>();
@@ -342,6 +347,8 @@ public class SynapseEntry {
                         this.getSynapse().getLogger().error(disconnectPacket.message);
                         break;
                 }
+
+                removeAllPlayers();
                 break;
             case SynapseInfo.INFORMATION_PACKET:
                 InformationPacket informationPacket = (InformationPacket) pk;

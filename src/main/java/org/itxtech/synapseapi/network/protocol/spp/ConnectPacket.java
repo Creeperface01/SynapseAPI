@@ -10,6 +10,7 @@ public class ConnectPacket extends SynapseDataPacket {
     public int maxPlayers;
     public boolean isMainServer;
     public boolean isLobbyServer;
+    public boolean transferShutdown;
     public String description;
     public String password;
 
@@ -25,6 +26,7 @@ public class ConnectPacket extends SynapseDataPacket {
         this.putInt(this.maxPlayers);
         this.putBoolean(this.isMainServer);
         this.putBoolean(this.isLobbyServer);
+        this.putBoolean(transferShutdown);
         this.putString(this.description);
         this.putString(this.password);
     }
@@ -35,6 +37,7 @@ public class ConnectPacket extends SynapseDataPacket {
         this.maxPlayers = this.getInt();
         this.isMainServer = this.getBoolean();
         this.isLobbyServer = this.getBoolean();
+        this.transferShutdown = getBoolean();
         this.description = this.getString();
         this.password = this.getString();
     }

@@ -8,6 +8,7 @@ entries:
     server-port: 10305
     isMainServer: true
     isLobbyServer: true
+    transferOnShutdown: true
     password: must16keyslength
     description: Synapse Nukkit Server
     autoConnect: true

@@ -90,11 +90,11 @@ public class SynapseAPI extends PluginBase implements Listener {
     }
 
     public void shutdownAll() {
-        for (Player p : getServer().getOnlinePlayers().values()) {
+        /*for (Player p : getServer().getOnlinePlayers().values()) {
             if (p instanceof SynapsePlayer) {
                 ((SynapsePlayer) p).transferToLobby();
             }
-        }
+        }*/
 
         try {
             Thread.sleep(5);
@@ -153,12 +153,13 @@ public class SynapseAPI extends PluginBase implements Listener {
                 int port = section.getInt("server-port", 10305);
                 boolean isMainServer = section.getBoolean("isMainServer");
                 boolean isLobbyServer = section.getBoolean("isLobbyServer");
+                boolean transfer = section.getBoolean("transferOnShutdown", true);
                 String password = section.getString("password");
                 String serverDescription = section.getString("description");
                 this.loadingScreen = section.getBoolean("loadingScreen", true);
                 this.autoConnect = section.getBoolean("autoConnect", true);
                 if (this.autoConnect) {
-                    this.addSynapseAPI(new SynapseEntry(this, serverIp, port, isMainServer, isLobbyServer, password, serverDescription));
+                    this.addSynapseAPI(new SynapseEntry(this, serverIp, port, isMainServer, isLobbyServer, transfer, password, serverDescription));
                 }
             }
 
