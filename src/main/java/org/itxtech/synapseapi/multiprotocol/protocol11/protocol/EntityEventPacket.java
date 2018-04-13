@@ -56,7 +56,7 @@ public class EntityEventPacket extends Packet11 {
 
     @Override
     public void decode() {
-        this.eid = this.getVarLong();
+        this.eid = getEntityRuntimeId();
         this.event = (byte) this.getByte();
         this.unknown = this.getUnsignedVarInt();
     }
@@ -64,7 +64,7 @@ public class EntityEventPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.eid);
+        this.putEntityRuntimeId(this.eid);
         this.putByte(this.event);
         this.putUnsignedVarInt(this.unknown);
     }

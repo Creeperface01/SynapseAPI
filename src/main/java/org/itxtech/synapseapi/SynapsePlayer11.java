@@ -13,7 +13,6 @@ import cn.nukkit.blockentity.BlockEntityItemFrame;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.blockentity.BlockEntitySpawnable;
 import cn.nukkit.command.Command;
-import cn.nukkit.command.data.CommandDataVersions;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.command.data.args.CommandArg;
 import cn.nukkit.command.data.args.CommandArgBlockVector;
@@ -78,6 +77,8 @@ import org.itxtech.synapseapi.event.player.SynapsePlayerTransferEvent;
 import org.itxtech.synapseapi.multiprotocol.PacketRegister;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 import org.itxtech.synapseapi.multiprotocol.protocol11.AdventureSettings11;
+import org.itxtech.synapseapi.multiprotocol.protocol11.command.CommandData11;
+import org.itxtech.synapseapi.multiprotocol.protocol11.command.CommandDataVersions11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.PlayerInventory11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting.CraftingManager11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.*;
@@ -354,14 +355,15 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
     public void sendCommandData() {
         AvailableCommandsPacket pk = new AvailableCommandsPacket();
-        Map<String, CommandDataVersions> data = new HashMap<>();
+        Map<String, CommandDataVersions11> data = new HashMap<>();
         for (Command command : this.server.getCommandMap().getCommands().values()) {
             if (!command.testPermissionSilent(this)) {
                 continue;
             }
-            CommandDataVersions data0 = command.generateCustomCommandData(this);
+            CommandDataVersions11 data0 = CommandData11.generate(command, this);
             data.put(command.getName(), data0);
         }
+
         pk.commands = new Gson().toJson(data);
         this.dataPacket(pk, true);
     }
@@ -550,6 +552,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
         this.getAdventureSettings().update();
         this.sendPotionEffects(this);
         this.sendData(this);
+
         this.getInventory().sendContents(this);
         this.getInventory().sendArmorContents(this);
 

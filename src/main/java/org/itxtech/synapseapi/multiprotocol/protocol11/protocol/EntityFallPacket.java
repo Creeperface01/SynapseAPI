@@ -30,7 +30,7 @@ public class EntityFallPacket extends Packet11 {
 
     @Override
     public void decode() {
-        this.eid = this.getVarLong();
+        this.eid = getEntityRuntimeId();
         this.fallDistance = this.getLFloat();
         this.unknown = this.getBoolean();
     }

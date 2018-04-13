@@ -25,7 +25,7 @@ public class UpdateAttributesPacket extends Packet11 {
     public void encode() {
         this.reset();
 
-        this.putVarLong(this.entityId);
+        this.putEntityRuntimeId(this.entityId);
 
         if (this.entries == null) {
             this.putUnsignedVarInt(0);

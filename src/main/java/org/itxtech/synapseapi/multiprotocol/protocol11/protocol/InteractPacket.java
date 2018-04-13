@@ -39,14 +39,14 @@ public class InteractPacket extends Packet11 {
     @Override
     public void decode() {
         this.action = (byte) this.getByte();
-        this.target = this.getVarLong();
+        this.target = getEntityRuntimeId();
     }
 
     @Override
     public void encode() {
         this.reset();
         this.putByte(this.action);
-        this.putVarLong(this.target);
+        this.putEntityRuntimeId(this.target);
     }
 
     @Override

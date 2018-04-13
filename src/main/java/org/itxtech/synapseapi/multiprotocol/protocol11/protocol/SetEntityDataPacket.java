@@ -44,7 +44,7 @@ public class SetEntityDataPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.eid);
+        this.putEntityRuntimeId(this.eid);
         this.put(Binary.writeMetadata(this.metadata));
     }
 

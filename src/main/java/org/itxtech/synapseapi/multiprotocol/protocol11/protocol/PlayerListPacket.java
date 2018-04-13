@@ -59,13 +59,12 @@ public class PlayerListPacket extends Packet11 {
         this.putByte(this.type);
         this.putUnsignedVarInt(this.entries.length);
         for (Entry entry : this.entries) {
+            this.putUUID(entry.uuid);
+
             if (type == TYPE_ADD) {
-                this.putUUID(entry.uuid);
-                this.putVarLong(entry.entityId);
+                this.putEntityUniqueId(entry.entityId);
                 this.putString(entry.name);
                 this.putSkin(entry.skin);
-            } else {
-                this.putUUID(entry.uuid);
             }
         }
 

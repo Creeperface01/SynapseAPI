@@ -39,7 +39,7 @@ public class RemoveEntityPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.eid);
+        this.putEntityUniqueId(this.eid);
     }
 
     public static Class<? extends DataPacket> getDefaultPacket() {

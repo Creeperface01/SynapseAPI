@@ -64,7 +64,7 @@ public class PlayerActionPacket extends Packet11 {
 
     @Override
     public void decode() {
-        this.entityId = this.getVarLong();
+        this.entityId = getEntityRuntimeId();
         this.action = this.getVarInt();
         BlockVector3 v = this.getBlockVector3();
         this.x = v.x;
@@ -76,7 +76,7 @@ public class PlayerActionPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.entityId);
+        this.putEntityRuntimeId(this.entityId);
         this.putVarInt(this.action);
         this.putBlockVector3(this.x, this.y, this.z);
         this.putVarInt(this.face);

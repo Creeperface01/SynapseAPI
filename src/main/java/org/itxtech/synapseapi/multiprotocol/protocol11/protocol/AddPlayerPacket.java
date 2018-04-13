@@ -46,7 +46,7 @@ public class AddPlayerPacket extends Packet11 {
         this.putUUID(this.uuid);
         this.putString(this.username);
         this.putVarLong(this.entityUniqueId);
-        this.putVarLong(this.entityRuntimeId);
+        this.putEntityRuntimeId(this.entityRuntimeId);
         this.putVector3f(this.x, this.y, this.z);
         this.putVector3f(this.speedX, this.speedY, this.speedZ);
         this.putLFloat(this.pitch);

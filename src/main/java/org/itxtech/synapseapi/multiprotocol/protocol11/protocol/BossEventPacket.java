@@ -46,7 +46,7 @@ public class BossEventPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.eid);
+        this.putEntityRuntimeId(this.eid);
         this.putUnsignedVarInt(this.type);
     }
 

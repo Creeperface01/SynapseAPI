@@ -48,7 +48,7 @@ public class SetEntityMotionPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.eid);
+        this.putEntityRuntimeId(this.eid);
         this.putVector3f(this.motionX, this.motionY, this.motionZ);
     }
 

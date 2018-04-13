@@ -53,7 +53,7 @@ public class StartGamePacket extends Packet11 {
     public void encode() {
         this.reset();
         this.putVarLong(this.entityUniqueId);
-        this.putVarLong(this.entityRuntimeId);
+        this.putEntityRuntimeId(this.entityRuntimeId);
         this.putVarInt(this.playerGamemode);
         this.putVector3f(this.x, this.y, this.z);
         this.putLFloat(this.yaw);

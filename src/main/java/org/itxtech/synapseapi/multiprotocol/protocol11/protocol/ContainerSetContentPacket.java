@@ -55,7 +55,7 @@ public class ContainerSetContentPacket extends Packet11 {
     @Override
     public void decode() {
         this.windowid = (int) this.getUnsignedVarInt();
-        this.eid = this.getVarLong();
+        this.eid = getEntityUniqueId();
         int count = (int) this.getUnsignedVarInt();
         this.slots = new Item[count];
 
@@ -74,7 +74,7 @@ public class ContainerSetContentPacket extends Packet11 {
     public void encode() {
         this.reset();
         this.putUnsignedVarInt(this.windowid);
-        this.putVarLong(this.eid);
+        this.putEntityUniqueId(this.eid);
         this.putUnsignedVarInt(this.slots.length);
         for (Item slot : this.slots) {
             this.putSlot(slot);

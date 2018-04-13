@@ -3,7 +3,6 @@ package org.itxtech.synapseapi.multiprotocol;
 /**
  * @author CreeperFace
  */
-
 public enum ProtocolGroup {
     PROTOCOL_11(113, 113),
     PROTOCOL_12(134, 160),

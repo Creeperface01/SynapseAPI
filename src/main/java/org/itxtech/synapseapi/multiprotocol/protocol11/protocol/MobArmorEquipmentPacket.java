@@ -37,7 +37,7 @@ public class MobArmorEquipmentPacket extends Packet11 {
 
     @Override
     public void decode() {
-        this.eid = this.getVarLong();
+        this.eid = getEntityRuntimeId();
         this.slots = new Item[4];
         this.slots[0] = this.getSlot();
         this.slots[1] = this.getSlot();
@@ -48,7 +48,7 @@ public class MobArmorEquipmentPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.eid);
+        this.putEntityRuntimeId(this.eid);
         this.putSlot(this.slots[0]);
         this.putSlot(this.slots[1]);
         this.putSlot(this.slots[2]);

@@ -20,8 +20,8 @@ public class TakeItemEntityPacket extends Packet11 {
     @Override
     public void encode() {
         this.reset();
-        this.putVarLong(this.target);
-        this.putVarLong(this.entityId);
+        this.putEntityRuntimeId(this.target);
+        this.putEntityRuntimeId(this.entityId);
     }
 
     @Override

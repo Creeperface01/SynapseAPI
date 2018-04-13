@@ -57,7 +57,7 @@ public class ContainerOpenPacket extends Packet11 {
         this.putByte(this.windowid);
         this.putByte(this.type);
         this.putBlockVector3(this.x, this.y, this.z);
-        this.putVarLong(this.entityId);
+        this.putEntityUniqueId(this.entityId);
     }
 
     public static Class<? extends DataPacket> getDefaultPacket() {

@@ -27,7 +27,7 @@ public class AddPaintingPacket extends Packet11 {
     public void encode() {
         this.reset();
         this.putVarLong(this.entityUniqueId);
-        this.putVarLong(this.entityRuntimeId);
+        this.putEntityRuntimeId(this.entityRuntimeId);
         this.putBlockVector3(this.x, this.y, this.z);
         this.putVarInt(this.direction);
         this.putString(this.title);
