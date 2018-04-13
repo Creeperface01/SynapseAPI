@@ -64,6 +64,7 @@ public class SynapsePlayer extends Player {
      * This function takes care of handling gamemodes known to MCPE (as of 1.1.0.3, that includes Survival, Creative and Adventure)
      * <p>
      * TODO: remove this when Spectator Mode gets added properly to MCPE
+     * TODO: Actually, Spectator Mode exist from 1.2.
      */
     private static int getClientFriendlyGamemode(int gamemode) {
         gamemode &= 0x03;
@@ -71,6 +72,10 @@ public class SynapsePlayer extends Player {
             return Player.CREATIVE;
         }
         return gamemode;
+    }
+
+    public ProtocolGroup getProtocolGroup() {
+        return protocolGroup;
     }
 
     public void handleLoginPacket(PlayerLoginPacket packet) {
