@@ -64,7 +64,9 @@ public class PlayerListPacket extends Packet11 {
             if (type == TYPE_ADD) {
                 this.putEntityUniqueId(entry.entityId);
                 this.putString(entry.name);
-                this.putSkin(entry.skin);
+
+                this.putString("Standard_Custom");
+                this.putByteArray(entry.skin.getData());
             }
         }
 
