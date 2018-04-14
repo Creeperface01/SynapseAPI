@@ -527,7 +527,7 @@ public class SynapsePlayer extends Player {
             this.processLogin();
             return -1;
         }*/
-        packet = DataPacketEidReplacer.replace(packet, this.getId(), Long.MAX_VALUE);
+        packet = DataPacketEidReplacer.replace(packet, this.getId(), Long.MAX_VALUE); //clone packet
 
         DataPacketSendEvent ev = new DataPacketSendEvent(this, packet);
         this.server.getPluginManager().callEvent(ev);
@@ -558,9 +558,9 @@ public class SynapsePlayer extends Player {
 
     @Override
     public void close(TextContainer message, String reason, boolean notify) {
-        if (message.getText().equals("timeout")) {
+        /*if (message.getText().equals("timeout")) {
             this.crashLog.post(this);
-        }
+        }*/
 
         super.close(message, reason, notify);
     }

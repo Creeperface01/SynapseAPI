@@ -208,8 +208,15 @@ public class PacketRegister {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     public static boolean encodePacket(DataPacket pk, ProtocolGroup protocol) {
+        return encodePacket(pk, protocol, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static boolean encodePacket(DataPacket pk, ProtocolGroup protocol, boolean clone) {
+        if (clone)
+            pk = pk.clone();
+
         if (protocol != ProtocolGroup.PROTOCOL_11) {
             try {
                 Class<? extends PacketDecoder<? extends DataPacket>> decoder = decoders[pk.pid() & 0xff];
