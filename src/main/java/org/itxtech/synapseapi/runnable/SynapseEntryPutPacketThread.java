@@ -129,7 +129,9 @@ public class SynapseEntryPutPacketThread extends Thread {
                             DataPacket packet = PacketRegister.getCompatiblePacket(targetPk, protocol, true);
 
                             if (packet != null) {
-                                PacketRegister.encodePacket(packet, protocol, true);
+                                packet = packet.clone();
+
+                                PacketRegister.encodePacket(packet, protocol);
                                 packet.isEncoded = true;
                                 packets.get(protocol).add(packet);
                             }
