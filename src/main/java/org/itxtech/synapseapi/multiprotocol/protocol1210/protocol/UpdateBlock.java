@@ -24,8 +24,8 @@ public class UpdateBlock extends PacketDecoder<UpdateBlockPacket> {
             putUnsignedVarInt(GlobalBlockPalette.getOrCreateRuntimeId(pk.blockId, pk.blockData));
             putUnsignedVarInt(pk.flags);
         } else {
-            this.putUnsignedVarInt((long) pk.blockId);
-            this.putUnsignedVarInt((long) (176 | pk.blockData & 15));
+            putUnsignedVarInt(pk.blockId);
+            putUnsignedVarInt(((0xb << 4) | pk.blockData & 0x0f));
         }
 
         pk.setBuffer(getBuffer());

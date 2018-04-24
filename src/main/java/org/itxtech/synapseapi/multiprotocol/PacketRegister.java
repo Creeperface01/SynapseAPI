@@ -210,6 +210,7 @@ public class PacketRegister {
 
     @SuppressWarnings("unchecked")
     public static boolean encodePacket(DataPacket pk, ProtocolGroup protocol) {
+
         if (protocol != ProtocolGroup.PROTOCOL_11) {
             try {
                 Class<? extends PacketDecoder<? extends DataPacket>> decoder = decoders[pk.pid() & 0xff];
