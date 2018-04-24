@@ -53,6 +53,7 @@ public class Session {
                 }
             }
         }
+
         if (this.connected) {
             this.client.getClientGroup().shutdownGracefully();
         }
@@ -102,6 +103,7 @@ public class Session {
             this.connected = false;
             this.client.needReconnect = false;
         }
+
         if (!this.connected && !this.client.isShutdown()) {
             long time;
             if (((time = System.currentTimeMillis()) - this.lastCheck) >= 3000) {//re-connect
@@ -111,6 +113,7 @@ public class Session {
                     this.client.setConnected(true);
                     this.client.setNeedAuth(true);
                 }
+
                 this.lastCheck = time;
             }
             return false;

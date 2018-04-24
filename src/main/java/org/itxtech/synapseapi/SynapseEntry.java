@@ -11,10 +11,12 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
+import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Zlib;
 import co.aikar.timings.Timing;
 import co.aikar.timings.TimingsManager;
 import com.google.gson.Gson;
+import lombok.Setter;
 import org.itxtech.synapseapi.event.player.SynapsePlayerCreationEvent;
 import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.multiprotocol.PacketRegister;
@@ -45,6 +47,8 @@ public class SynapseEntry {
     private boolean isLobbyServer;
     private String password;
     private SynapseInterface synapseInterface;
+
+    @Setter
     private boolean verified = false;
     private long lastUpdate;
     private long lastRecvInfo;
@@ -81,7 +85,8 @@ public class SynapseEntry {
         this.getSynapse().getServer().getScheduler().scheduleRepeatingTask(SynapseAPI.getInstance(), new Ticker(this), 1);
 
         Thread ticker = new Thread(new AsyncTicker());
-        ticker.setName("SynapseAPI Async Ticker");
+        ticker.setPriority(8);
+        ticker.setName("SynapseAPI Async Ticker <" + getHash() + ">");
         ticker.start();
     }
 
@@ -212,7 +217,12 @@ public class SynapseEntry {
         public void run() {
             long startTime = System.currentTimeMillis();
             while (Server.getInstance().isRunning()) {
-                threadTick();
+                try {
+                    threadTick();
+                } catch (Throwable t) {
+                    MainLogger.getLogger().error("Exception in Synapse Async Ticker", t);
+                }
+
                 tickUseTime = System.currentTimeMillis() - startTime;
                 if (tickUseTime < 10) {
                     try {
@@ -283,10 +293,12 @@ public class SynapseEntry {
 
     public void threadTick() {
         this.synapseInterface.process();
+
         if (!this.getSynapseInterface().isConnected() || !this.verified) return;
         long time = System.currentTimeMillis();
         if ((time - this.lastUpdate) >= 5000) {  //Heartbeat!
             this.lastUpdate = time;
+
             HeartbeatPacket pk = new HeartbeatPacket();
             pk.tps = this.getSynapse().getServer().getTicksPerSecondAverage();
             pk.load = this.getSynapse().getServer().getTickUsageAverage();
@@ -307,9 +319,11 @@ public class SynapseEntry {
         //this.getSynapse().getServer().getLogger().warning(time + " -> threadTick 用时 " + usedTime + " 毫秒");
         if (((finalTime - this.lastNemisysUpdate) >= 30000) && this.synapseInterface.isConnected()) {  //30 seconds timeout
             this.lastNemisysUpdate = finalTime;
+
+            getSynapse().getLogger().notice("SynapseClient disconnected due to heartbeat timeout");
             this.synapseInterface.reconnect();
-            this.connect();
-            this.removeAllPlayers();
+
+            Server.getInstance().getScheduler().scheduleTask(this::removeAllPlayers);
         }
     }
 

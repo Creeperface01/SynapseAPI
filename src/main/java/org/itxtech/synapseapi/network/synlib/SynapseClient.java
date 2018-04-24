@@ -7,6 +7,8 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.Getter;
+import org.itxtech.synapseapi.SynapseEntry;
 import org.itxtech.synapseapi.network.protocol.spp.SynapseDataPacket;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,12 +31,16 @@ public class SynapseClient extends Thread {
     private EventLoopGroup clientGroup;
     private Session session;
 
-    public SynapseClient(ThreadedLogger logger, int port) {
-        this(logger, port, "127.0.0.1");
+    @Getter
+    private SynapseEntry entry;
+
+    public SynapseClient(SynapseEntry entry, ThreadedLogger logger, int port) {
+        this(entry, logger, port, "127.0.0.1");
     }
 
-    public SynapseClient(ThreadedLogger logger, int port, String interfaz) {
+    public SynapseClient(SynapseEntry entry, ThreadedLogger logger, int port, String interfaz) {
         this.logger = logger;
+        this.entry = entry;
         this.interfaz = interfaz;
         this.port = port;
         if (port < 1 || port > 65536) {
@@ -49,6 +55,7 @@ public class SynapseClient extends Thread {
 
     public void reconnect() {
         this.needReconnect = true;
+        this.entry.setVerified(false);
     }
 
     public boolean isNeedAuth() {

@@ -23,7 +23,7 @@ public class SynapseInterface {
     public SynapseInterface(SynapseEntry server, String ip, int port) {
         this.synapse = server;
         this.registerPackets();
-        this.client = new SynapseClient(Server.getInstance().getLogger(), port, ip);
+        this.client = new SynapseClient(server, Server.getInstance().getLogger(), port, ip);
         this.putPacketThread = new SynapseEntryPutPacketThread(this);
     }
 
