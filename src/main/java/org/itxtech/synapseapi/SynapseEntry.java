@@ -210,6 +210,7 @@ public class SynapseEntry {
     }
 
     public class AsyncTicker implements Runnable {
+
         private long tickUseTime;
         private long lastWarning = 0;
 
