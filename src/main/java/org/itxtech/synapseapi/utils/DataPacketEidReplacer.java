@@ -188,6 +188,9 @@ public class DataPacketEidReplacer {
             case ProtocolInfo.UPDATE_EQUIPMENT_PACKET:
                 if (((UpdateEquipmentPacket) packet).eid == from) ((UpdateEquipmentPacket) packet).eid = to;
                 break;
+            case ContainerOpenPacket.NETWORK_ID:
+                if (((ContainerOpenPacket) packet).entityId == from) ((ContainerOpenPacket) packet).entityId = to;
+                break;
             default:
                 change = false;
         }

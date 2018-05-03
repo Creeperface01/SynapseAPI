@@ -417,7 +417,9 @@ public class SynapseEntry {
             case SynapseInfo.PLUGIN_MESSAGE_PACKET:
                 PluginMessagePacket messagePacket = (PluginMessagePacket) pk;
 
-                this.synapse.getMessenger().dispatchIncomingMessage(this, messagePacket.channel, messagePacket.data);
+                getSynapse().getServer().getScheduler().scheduleTask(getSynapse(), () -> {
+                    this.synapse.getMessenger().dispatchIncomingMessage(this, messagePacket.channel, messagePacket.data);
+                });
                 break;
             case SynapseInfo.HEARTBEAT_PACKET:
                 this.lastNemisysUpdate = System.currentTimeMillis();

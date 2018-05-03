@@ -9,14 +9,19 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.data.CommandDataVersions;
 import cn.nukkit.event.player.PlayerKickEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.event.server.DataPacketSendEvent;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.NukkitMath;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.*;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.*;
+import cn.nukkit.scheduler.Task;
+import cn.nukkit.utils.DummyBossBar;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.TextFormat;
 import co.aikar.timings.Timing;
@@ -229,8 +234,10 @@ public class SynapsePlayer extends Player {
             infoPacket.mustAccept = this.server.getForceResources();
             this.dataPacket(infoPacket);
         } else {
-            this.completeLoginSequence();
+            this.shouldLogin = true;
         }
+
+
     }
 
     @Override
@@ -563,5 +570,86 @@ public class SynapsePlayer extends Player {
         }*/
 
         super.close(message, reason, notify);
+    }
+
+    @Override
+    public boolean teleport(Location location, PlayerTeleportEvent.TeleportCause cause) {
+        if (!this.isOnline()) {
+            return false;
+        } else {
+            Location from = this.getLocation();
+            Location to = location;
+
+            boolean nearTeleport = false;
+
+            if (cause != null) {
+                PlayerTeleportEvent event = new PlayerTeleportEvent(this, from, location, cause);
+                this.server.getPluginManager().callEvent(event);
+                if (event.isCancelled()) {
+                    return false;
+                }
+
+                to = event.getTo();
+            }
+
+            if (from.getLevel().getId() != to.getLevel().getId()) {
+                SetSpawnPositionPacket pk = new SetSpawnPositionPacket();
+                pk.spawnType = 1;
+                Position spawn = to.getLevel().getSpawnLocation();
+                pk.x = spawn.getFloorX();
+                pk.y = spawn.getFloorY();
+                pk.z = spawn.getFloorZ();
+                this.dataPacket(pk);
+
+                if ((Math.pow(from.x - to.x, 2.0D) + Math.pow(from.z - to.z, 2)) < Math.pow(getViewDistance() * 16, 2) * 1.2) {
+                    nearTeleport = true;
+                }
+            }
+
+            if (super.teleport(to.getY() == (double) to.getFloorY() ? to.add(0, 1.0E-5D, 0) : to, null)) {
+                this.removeAllWindows();
+                this.teleportPosition = new Vector3(this.x, this.y, this.z);
+                this.forceMovement = this.teleportPosition;
+                final Vector3 tpPos = this.teleportPosition;
+
+                this.checkTeleportPosition();
+                this.resetFallDistance();
+
+                this.nextChunkOrderRun = 0;
+                this.newPosition = null;
+                this.getDummyBossBars().values().forEach(DummyBossBar::reshow);
+                this.getLevel().sendWeather(this);
+                this.getLevel().sendTime(this);
+
+                if (nearTeleport && getProtocolGroup().ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+                    forceSendEmptyChunks();
+                    /*new SendChangeDimensionRunnable(this, 1).run();
+                    new SendPlayerSpawnRunnable(SynapsePlayer.this).run();*/
+                    this.sendPosition(new Position(1000000, 100, -100000000), this.yaw, this.pitch, 2);
+
+                    final int tick = getServer().getTick();
+                    getServer().getScheduler().scheduleRepeatingTask(new Task() {
+                        @Override
+                        public void onRun(int i) {
+                            if (closed || !teleportPosition.equals(tpPos)) {
+                                this.cancel();
+                                return;
+                            }
+
+                            switch (i - tick) {
+                                case 20:
+                                    sendPosition(SynapsePlayer.this, yaw, pitch, 2);
+                                    break;
+                            }
+                        }
+                    }, 1);
+                } else {
+                    this.sendPosition(this, this.yaw, this.pitch, 2);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }
