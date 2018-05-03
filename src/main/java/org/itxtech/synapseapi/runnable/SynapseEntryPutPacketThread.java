@@ -3,8 +3,10 @@ package org.itxtech.synapseapi.runnable;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.math.NukkitMath;
+import cn.nukkit.network.protocol.AddPlayerPacket;
 import cn.nukkit.network.protocol.BatchPacket;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.network.protocol.SetEntityDataPacket;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Zlib;
@@ -79,6 +81,7 @@ public class SynapseEntryPutPacketThread extends Thread {
                         RedirectPacket pk = new RedirectPacket();
                         pk.uuid = entry.player.getUniqueId();
                         pk.direct = entry.immediate;
+                        pk.protocol = entry.player.getProtocol();
 
                         entry.packet = PacketRegister.getCompatiblePacket(entry.packet, entry.player.getProtocolGroup(), true);
 
@@ -91,13 +94,26 @@ public class SynapseEntryPutPacketThread extends Thread {
                         PacketRegister.encodePacket(entry.packet, protocol);
                         entry.packet.isEncoded = true;
 
-
                         if (protocol != ProtocolGroup.PROTOCOL_11 && entry.packet instanceof Packet11) {
                             MainLogger.getLogger().warning("SENDING 1.1 PACKET '" + entry.packet.getClass().getName() + "' TO PLAYER '" + entry.player.getName() + "' with protocol: " + entry.player.getProtocol());
                         }
 
                         pk.mcpeBuffer = entry.packet instanceof BatchPacket ? Binary.appendBytes((byte) 0xfe, ((BatchPacket) entry.packet).payload) : entry.packet.getBuffer();
                         this.synapseInterface.putPacket(pk);
+
+                        if (protocol == ProtocolGroup.PROTOCOL_1213 && entry.packet instanceof AddPlayerPacket) { //hack to send player data correctly
+                            SetEntityDataPacket sedp = new SetEntityDataPacket();
+                            sedp.metadata = ((AddPlayerPacket) entry.packet).metadata;
+                            sedp.eid = ((AddPlayerPacket) entry.packet).entityRuntimeId;
+                            PacketRegister.encodePacket(sedp, protocol);
+
+                            RedirectPacket rp = new RedirectPacket();
+                            rp.uuid = entry.player.getUniqueId();
+                            rp.mcpeBuffer = sedp.getBuffer();
+                            rp.protocol = entry.player.getProtocol();
+
+                            this.synapseInterface.putPacket(rp);
+                        }
 
                         if ((entry.player).logPackets.get()) { //TODO: remove
                             (entry.player).crashLog.checkPacket(entry.packet);
