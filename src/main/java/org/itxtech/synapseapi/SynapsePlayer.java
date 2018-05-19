@@ -345,7 +345,7 @@ public class SynapsePlayer extends Player {
             this.getInventory().sendCreativeContents();
         }
 
-        this.setEnableClientCommand(true);
+        //this.setEnableClientCommand(true);
 
         this.forceMovement = this.teleportPosition = this.getPosition();
 
@@ -355,11 +355,6 @@ public class SynapsePlayer extends Player {
         ChunkRadiusUpdatedPacket chunkRadiusUpdatePacket = new ChunkRadiusUpdatedPacket();
         chunkRadiusUpdatePacket.radius = this.chunkRadius;
         this.dataPacket(chunkRadiusUpdatePacket);
-    }
-
-    @Override
-    protected void doFirstSpawn() {
-        super.doFirstSpawn();
     }
 
     protected void forceSendEmptyChunks() {
@@ -514,6 +509,9 @@ public class SynapsePlayer extends Player {
     }
 
     public void sendCommandData() {
+        if (!spawned)
+            return;
+
         AvailableCommandsPacket pk = new AvailableCommandsPacket();
         Map<String, CommandDataVersions> data = new HashMap<>();
         for (Command command : this.server.getCommandMap().getCommands().values()) {
@@ -631,7 +629,7 @@ public class SynapsePlayer extends Player {
                     getServer().getScheduler().scheduleRepeatingTask(new Task() {
                         @Override
                         public void onRun(int i) {
-                            if (closed || !teleportPosition.equals(tpPos)) {
+                            if (closed || (teleportPosition != null && !Objects.equals(teleportPosition, tpPos))) {
                                 this.cancel();
                                 return;
                             }

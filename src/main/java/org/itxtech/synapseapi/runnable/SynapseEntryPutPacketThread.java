@@ -3,10 +3,8 @@ package org.itxtech.synapseapi.runnable;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.math.NukkitMath;
-import cn.nukkit.network.protocol.AddPlayerPacket;
 import cn.nukkit.network.protocol.BatchPacket;
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.SetEntityDataPacket;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Zlib;
@@ -101,7 +99,7 @@ public class SynapseEntryPutPacketThread extends Thread {
                         pk.mcpeBuffer = entry.packet instanceof BatchPacket ? Binary.appendBytes((byte) 0xfe, ((BatchPacket) entry.packet).payload) : entry.packet.getBuffer();
                         this.synapseInterface.putPacket(pk);
 
-                        if (protocol == ProtocolGroup.PROTOCOL_1213 && entry.packet instanceof AddPlayerPacket) { //hack to send player data correctly
+                        /*if (protocol == ProtocolGroup.PROTOCOL_1213 && entry.packet instanceof AddPlayerPacket) { //hack to send player data correctly
                             SetEntityDataPacket sedp = new SetEntityDataPacket();
                             sedp.metadata = ((AddPlayerPacket) entry.packet).metadata;
                             sedp.eid = ((AddPlayerPacket) entry.packet).entityRuntimeId;
@@ -113,7 +111,7 @@ public class SynapseEntryPutPacketThread extends Thread {
                             rp.protocol = entry.player.getProtocol();
 
                             this.synapseInterface.putPacket(rp);
-                        }
+                        }*/
 
                         if ((entry.player).logPackets.get()) { //TODO: remove
                             (entry.player).crashLog.checkPacket(entry.packet);

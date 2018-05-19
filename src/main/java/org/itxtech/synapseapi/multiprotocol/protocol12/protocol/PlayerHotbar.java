@@ -1,4 +1,4 @@
-package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
+package org.itxtech.synapseapi.multiprotocol.protocol12.protocol;
 
 import cn.nukkit.network.protocol.PlayerHotbarPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;

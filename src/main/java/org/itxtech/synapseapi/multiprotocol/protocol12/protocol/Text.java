@@ -1,4 +1,4 @@
-package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
+package org.itxtech.synapseapi.multiprotocol.protocol12.protocol;
 
 import cn.nukkit.network.protocol.TextPacket;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
@@ -18,7 +18,7 @@ public class Text extends PacketDecoder<TextPacket> {
     public byte[] encode(ProtocolGroup group, TextPacket pk) {
         this.reset();
         this.putByte(pk.type);
-        this.putBoolean(pk.isLocalized);
+        this.putBoolean(pk.isLocalized || pk.type == TextPacket.TYPE_TRANSLATION);
         switch (pk.type) {
             case TextPacket.TYPE_POPUP:
             case TextPacket.TYPE_CHAT:
@@ -58,7 +58,7 @@ public class Text extends PacketDecoder<TextPacket> {
     @Override
     public void decode(ProtocolGroup group, TextPacket pk) {
         pk.type = (byte) getByte();
-        pk.isLocalized = this.getBoolean();
+        pk.isLocalized = this.getBoolean() || pk.type == TextPacket.TYPE_TRANSLATION;
         switch (pk.type) {
             case TextPacket.TYPE_POPUP:
             case TextPacket.TYPE_CHAT:
