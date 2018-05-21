@@ -1,4 +1,4 @@
-package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
+package org.itxtech.synapseapi.multiprotocol.protocol12.protocol;
 
 import cn.nukkit.network.protocol.StartGamePacket;
 import cn.nukkit.utils.RuleData;
@@ -35,6 +35,11 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
         this.putBoolean(pk.hasAchievementsDisabled);
         this.putVarInt(pk.dayCycleStopTime);
         this.putBoolean(pk.eduMode);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_14.ordinal()) {
+            this.putBoolean(false); //edu features
+        }
+
         this.putLFloat(pk.rainLevel);
         this.putLFloat(pk.lightningLevel);
         this.putBoolean(pk.multiplayerGame);
@@ -47,24 +52,35 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
             this.putRuleData(rule);
         }
         this.putBoolean(pk.bonusChest);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_14.ordinal()) {
+            putBoolean(false); //start with map enabled
+        }
+
         this.putBoolean(pk.trustPlayers);
         this.putVarInt(pk.permissionLevel);
         this.putVarInt(pk.gamePublish);
 
         if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
-            putLInt(0);
+            putLInt(0); //chunk tick range
         }
 
         if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
-            putBoolean(false);
-            putVarInt(0);
-            putBoolean(false);
+            putBoolean(false); //broadcast to platform
+            putVarInt(0); //platform broadcast mode
+            putBoolean(false); //xbl broadcast intent
+        }
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_14.ordinal()) {
+            putBoolean(false); //locked behavior pack
+            putBoolean(false); //locked resource pack
+            putBoolean(false); //from locked world template
         }
 
         this.putString(pk.levelId);
         this.putString(pk.worldName);
         this.putString(pk.premiumWorldTemplateId);
-        this.putBoolean(pk.unknown);
+        this.putBoolean(pk.unknown); //is trial
         this.putLLong(pk.currentTick);
         this.putVarInt(pk.enchantmentSeed);
 

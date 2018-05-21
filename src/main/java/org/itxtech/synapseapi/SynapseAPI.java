@@ -13,10 +13,12 @@ import cn.nukkit.utils.ConfigSection;
 import org.itxtech.synapseapi.messaging.Messenger;
 import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.multiprotocol.PacketRegister;
+import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 import org.itxtech.synapseapi.multiprotocol.protocol11.chunk.ChunkCompressor;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting.CraftingManager11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.item.Item11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo;
+import org.itxtech.synapseapi.multiprotocol.protocol12.util.GlobalBlockPalette;
 import org.itxtech.synapseapi.network.protocol.mcpe.SetHealthPacket;
 
 import java.util.*;
@@ -48,6 +50,8 @@ public class SynapseAPI extends PluginBase implements Listener {
     @Override
     public void onLoad() {
         instance = this;
+
+        GlobalBlockPalette.getOrCreateRuntimeId(ProtocolGroup.PROTOCOL_1213, 0, 0); //Force it to load
     }
 
     @Override

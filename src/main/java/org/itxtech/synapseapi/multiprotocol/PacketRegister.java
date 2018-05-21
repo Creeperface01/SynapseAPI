@@ -6,7 +6,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.*;
-import org.itxtech.synapseapi.multiprotocol.protocol1210.protocol.*;
+import org.itxtech.synapseapi.multiprotocol.protocol12.protocol.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -124,6 +124,7 @@ public class PacketRegister {
         decoders[cn.nukkit.network.protocol.SetEntityDataPacket.NETWORK_ID & 0xff] = SetEntityData.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.PLAYER_HOTBAR_PACKET & 0xff] = PlayerHotbar.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.LEVEL_EVENT_PACKET & 0xff] = LevelEvent.class;
+        decoders[cn.nukkit.network.protocol.ProtocolInfo.AVAILABLE_COMMANDS_PACKET & 0xff] = AvailableCommands.class;
     }
 
     public static void registerPacket11(byte id, Class<? extends DataPacket> clazz) {

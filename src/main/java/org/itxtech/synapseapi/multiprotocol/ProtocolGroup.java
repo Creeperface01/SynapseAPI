@@ -7,7 +7,8 @@ public enum ProtocolGroup {
     PROTOCOL_11(113, 113),
     PROTOCOL_12(134, 160),
     PROTOCOL_1210(200, 222),
-    PROTOCOL_1213(223, 223);
+    PROTOCOL_1213(223, 260),
+    PROTOCOL_14(261, 261);
 
     private final int minProtocol;
     private final int maxProtocol;
@@ -23,7 +24,6 @@ public enum ProtocolGroup {
                 return group;
             }
         }
-
 
         return protocol < values()[0].minProtocol ? values()[0] : values()[values().length - 1];
     }

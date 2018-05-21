@@ -1,7 +1,7 @@
 package org.itxtech.synapseapi.multiprotocol;
 
 import cn.nukkit.network.protocol.DataPacket;
-import org.itxtech.synapseapi.multiprotocol.protocol1210.protocol.MVBinaryStream;
+import org.itxtech.synapseapi.multiprotocol.protocol12.protocol.MVBinaryStream;
 
 /**
  * @author CreeperFace

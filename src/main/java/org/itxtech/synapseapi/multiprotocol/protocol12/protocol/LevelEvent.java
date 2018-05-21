@@ -1,10 +1,10 @@
-package org.itxtech.synapseapi.multiprotocol.protocol1210.protocol;
+package org.itxtech.synapseapi.multiprotocol.protocol12.protocol;
 
-import cn.nukkit.block.GlobalBlockPalette;
 import cn.nukkit.math.Vector3f;
 import cn.nukkit.network.protocol.LevelEventPacket;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
+import org.itxtech.synapseapi.multiprotocol.protocol12.util.GlobalBlockPalette;
 
 /**
  * @author CreeperFace
@@ -26,13 +26,13 @@ public class LevelEvent extends PacketDecoder<LevelEventPacket> {
                 int id = data & 0xff;
                 int damage = (data >> 8) & 0xff;
 
-                data = GlobalBlockPalette.getOrCreateRuntimeId(id, damage);
+                data = GlobalBlockPalette.getOrCreateRuntimeId(group, id, damage);
             } else if (pk.evid == LevelEventPacket.EVENT_PARTICLE_PUNCH_BLOCK) {
                 int id = data & 0xff;
                 int damage = (data >> 8) & 0xff;
                 int face = (data >> 16) & 0xff;
 
-                data = GlobalBlockPalette.getOrCreateRuntimeId(id, damage | face << 24);
+                data = GlobalBlockPalette.getOrCreateRuntimeId(group, id, damage | face << 24);
             }
         }
 
