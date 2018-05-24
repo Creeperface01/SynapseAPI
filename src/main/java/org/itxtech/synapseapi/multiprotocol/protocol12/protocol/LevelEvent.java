@@ -29,10 +29,10 @@ public class LevelEvent extends PacketDecoder<LevelEventPacket> {
                 data = GlobalBlockPalette.getOrCreateRuntimeId(group, id, damage);
             } else if (pk.evid == LevelEventPacket.EVENT_PARTICLE_PUNCH_BLOCK) {
                 int id = data & 0xff;
-                int damage = (data >> 8) & 0xff;
-                int face = (data >> 16) & 0xff;
+                int damage = (data >> 8) & 0xf;
+                int face = (data >> 16) & 0xf;
 
-                data = GlobalBlockPalette.getOrCreateRuntimeId(group, id, damage | face << 24);
+                data = GlobalBlockPalette.getOrCreateRuntimeId(group, id, damage) | (face << 24);
             }
         }
 

@@ -693,7 +693,12 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
         if (!this.isSynapseLogin) return super.dataPacket(packet, needACK);
         if (!this.isFirstTimeLogin && packet instanceof org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ResourcePacksInfoPacket) {
-            this.processLogin();
+            // this.processLogin();
+            if (this.preLoginEventTask != null && this.preLoginEventTask.isFinished()) {
+                processLogin();
+            } else {
+                this.shouldLogin = true;
+            }
             return -1;
         }
 
@@ -1806,6 +1811,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                             }
                         }
                     };
+
                     this.server.getScheduler().scheduleAsyncTask(this.preLoginEventTask);
                     break;
                 case org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo.RESOURCE_PACK_CLIENT_RESPONSE_PACKET:
