@@ -374,6 +374,8 @@ public class StandardMessenger implements Messenger {
 
     @Override
     public boolean isIncomingChannelRegistered(Plugin plugin, String channel) {
+        if ("Nemisys".equals(channel)) return true;
+
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin cannot be null");
         }
@@ -393,6 +395,8 @@ public class StandardMessenger implements Messenger {
 
     @Override
     public boolean isOutgoingChannelRegistered(Plugin plugin, String channel) {
+        if ("Nemisys".equals(channel)) return true;
+
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin cannot be null");
         }

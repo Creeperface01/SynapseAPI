@@ -7,6 +7,7 @@ import cn.nukkit.PlayerFood;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.data.CommandDataVersions;
+import cn.nukkit.entity.data.EntityMetadata;
 import cn.nukkit.event.player.PlayerKickEvent;
 import cn.nukkit.event.player.PlayerLoginEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
@@ -39,6 +40,7 @@ import org.itxtech.synapseapi.utils.DataPacketEidReplacer;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Created by boybook on 16/6/24.
@@ -425,7 +427,7 @@ public class SynapsePlayer extends Player {
                 throw new IllegalStateException(this.getClass().getSimpleName() + " must have a valid skin set");
             }
 
-            this.server.updatePlayerListData(this.getUniqueId(), this.getId(), this.getName(), this.skin, this.getLoginChainData().getXUID(), this.getViewers().values());
+            //this.server.updatePlayerListData(this.getUniqueId(), this.getId(), this.getName(), this.skin, this.getLoginChainData().getXUID(), this.getViewers().values());
 
             AddPlayerPacket pk = new AddPlayerPacket();
             pk.uuid = this.getUniqueId();
@@ -453,6 +455,12 @@ public class SynapsePlayer extends Player {
 
                 Server.broadcastPacket(getViewers().values(), pkk);
             }
+
+            SetEntityDataPacket sedp = new SetEntityDataPacket();
+            sedp.eid = this.getId();
+            sedp.metadata = new EntityMetadata().putString(DATA_NAMETAG, this.getNameTag());
+
+            Server.broadcastPacket(this.getViewers().values().stream().filter((p) -> ((SynapsePlayer) p).getProtocolGroup().ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()).collect(Collectors.toList()), sedp);
 
             this.getInventory().sendArmorContents(this.getViewers().values());
         }

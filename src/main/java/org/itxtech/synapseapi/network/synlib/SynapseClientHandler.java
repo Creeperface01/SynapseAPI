@@ -32,7 +32,6 @@ public class SynapseClientHandler extends ChannelInboundHandlerAdapter {
         this.getSynapseClient().getSession().setConnected(true);
         this.getSynapseClient().setConnected(true);
         Server.getInstance().getLogger().notice("Synapse Client has connected to " + address.getAddress().getHostAddress() + ":" + address.getPort());
-        Server.getInstance().getLogger().error("Client timeout");
         //ThreadUtils.dumpThreads();
     }
 

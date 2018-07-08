@@ -154,6 +154,8 @@ public class SynapseClient extends Thread {
             b.connect(this.interfaz, this.port).get();
             // 等待服务端监听端口关闭，等待服务端链路关闭之后main函数才退出
             //future.channel().closeFuture().sync();
+
+            this.needReconnect = false;
             return true;
         } catch (Exception e) {
             clientGroup.shutdownGracefully();

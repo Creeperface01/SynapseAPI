@@ -51,7 +51,7 @@ public class SynapseEntry {
     @Setter
     private boolean verified = false;
     private long lastUpdate;
-    private long lastRecvInfo;
+    private long lastConnectAttepmt;
     private Map<UUID, SynapsePlayer> players = new HashMap<>();
     private SynLibInterface synLibInterface;
     private ClientData clientData;
@@ -79,7 +79,6 @@ public class SynapseEntry {
         this.synapseInterface = new SynapseInterface(this, this.serverIp, this.port);
         this.synLibInterface = new SynLibInterface(this.synapseInterface);
         this.lastUpdate = System.currentTimeMillis();
-        this.lastRecvInfo = System.currentTimeMillis();
         this.lastNemisysUpdate = System.currentTimeMillis();
 
         this.getSynapse().getServer().getScheduler().scheduleRepeatingTask(SynapseAPI.getInstance(), new Ticker(this), 1);
@@ -198,6 +197,8 @@ public class SynapseEntry {
     public void connect() {
         this.getSynapse().getLogger().notice("Connecting " + this.getHash());
         this.verified = false;
+        this.lastConnectAttepmt = System.currentTimeMillis();
+
         ConnectPacket pk = new ConnectPacket();
         pk.password = this.password;
         pk.isMainServer = this.isMainServer();
@@ -289,6 +290,11 @@ public class SynapseEntry {
                     removePlayer(uuid1);
                 }
             }
+
+            if (!entry.verified && this.entry.synapseInterface.isConnected() && System.currentTimeMillis() - entry.lastConnectAttepmt > 5000) {
+                entry.getSynapse().getLogger().info("Re-sending connect packet to " + entry.getHash());
+                entry.connect();
+            }
         }
     }
 
@@ -378,7 +384,6 @@ public class SynapseEntry {
                         break;
                     case InformationPacket.TYPE_CLIENT_DATA:
                         this.clientData = new Gson().fromJson(informationPacket.message, ClientData.class);
-                        this.lastRecvInfo = System.currentTimeMillis();
                         //this.getSynapse().getLogger().debug("Received ClientData from " + this.serverIp + ":" + this.port);
                         break;
                 }
