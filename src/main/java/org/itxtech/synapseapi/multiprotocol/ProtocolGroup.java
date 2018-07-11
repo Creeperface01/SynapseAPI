@@ -8,7 +8,8 @@ public enum ProtocolGroup {
     PROTOCOL_12(134, 160),
     PROTOCOL_1210(200, 222),
     PROTOCOL_1213(223, 260),
-    PROTOCOL_14(261, 261);
+    PROTOCOL_14(260, 261),
+    PROTOCOL_15(262, 274);
 
     private final int minProtocol;
     private final int maxProtocol;
