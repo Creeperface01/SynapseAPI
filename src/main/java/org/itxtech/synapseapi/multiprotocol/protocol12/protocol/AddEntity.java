@@ -24,6 +24,11 @@ public class AddEntity extends PacketDecoder<AddEntityPacket> {
         this.putVector3f(pk.speedX, pk.speedY, pk.speedZ);
         this.putLFloat(pk.pitch);
         this.putLFloat(pk.yaw);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_15.ordinal()) {
+            this.putLFloat(pk.yaw);
+        }
+
         this.putAttributeList(pk.attributes);
         this.putMetadata(pk.metadata, group);
         this.putUnsignedVarInt(pk.links.length);
