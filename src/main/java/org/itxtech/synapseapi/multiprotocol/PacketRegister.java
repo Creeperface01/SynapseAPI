@@ -125,6 +125,7 @@ public class PacketRegister {
         decoders[cn.nukkit.network.protocol.ProtocolInfo.PLAYER_HOTBAR_PACKET & 0xff] = PlayerHotbar.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.LEVEL_EVENT_PACKET & 0xff] = LevelEvent.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.AVAILABLE_COMMANDS_PACKET & 0xff] = AvailableCommands.class;
+        decoders[cn.nukkit.network.protocol.ProtocolInfo.MOVE_ENTITY_PACKET & 0xff] = MoveEntity.class;
     }
 
     public static void registerPacket11(byte id, Class<? extends DataPacket> clazz) {
