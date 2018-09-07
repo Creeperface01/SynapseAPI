@@ -15,6 +15,7 @@ import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.multiprotocol.PacketRegister;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 import org.itxtech.synapseapi.multiprotocol.protocol11.chunk.ChunkCompressor;
+import org.itxtech.synapseapi.multiprotocol.protocol11.chunk.MVChunkRequestManager;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting.CraftingManager11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.item.Item11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo;
@@ -63,7 +64,8 @@ public class SynapseAPI extends PluginBase implements Listener {
         this.getServer().getPluginManager().registerEvents(this, this);
 
         saveResource("recipes11.json", true);
-        new ChunkCompressor().init();
+        ChunkCompressor.init();
+        MVChunkRequestManager.init();
         PacketRegister.init();
         this.craftingManager = new CraftingManager11(this);
         Item11.init();

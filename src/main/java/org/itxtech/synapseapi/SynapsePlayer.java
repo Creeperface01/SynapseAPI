@@ -95,7 +95,7 @@ public class SynapsePlayer extends Player {
 
             try {
                 DataPacket pk = SynapseAPI.getInstance().getPacket(packet.cachedLoginPacket);
-                pk.setOffset(3);
+                pk.setOffset(this.protocolGroup.getBufferOffset());
                 pk.decode();
                 this.handleDataPacket(pk);
             } catch (Exception e) {
@@ -372,8 +372,37 @@ public class SynapsePlayer extends Player {
                 pkList.add(chunk);
             }
         }
+
         Server.getInstance().batchPackets(new Player[]{this}, pkList.stream().toArray(DataPacket[]::new));
     }
+
+//    @Override
+//    public void sendChunk(int x, int z, DataPacket packet) {
+//        if (!this.connected) {
+//            return;
+//        }
+//
+//        this.usedChunks.put(Level.chunkHash(x, z), true);
+//        this.chunkLoadCount++;
+//
+////        FullChunkDataPacket chunk = new FullChunkDataPacket();
+////        chunk.chunkX = x;
+////        chunk.chunkZ = z;
+////        chunk.data = new byte[0];
+////
+////        this.dataPacket(chunk);
+//
+////        MainLogger.getLogger().info("sending chunk: "+packet.getClass().getName()+"  length: "+((BatchPacket) packet).payload.length);
+//        this.dataPacket(packet);
+//
+//        if (this.spawned) {
+//            for (Entity entity : this.level.getChunkEntities(x, z).values()) {
+//                if (this != entity && !entity.closed && entity.isAlive()) {
+//                    entity.spawnTo(this);
+//                }
+//            }
+//        }
+//    }
 
     public boolean transferToLobby() {
         this.transfering = true;

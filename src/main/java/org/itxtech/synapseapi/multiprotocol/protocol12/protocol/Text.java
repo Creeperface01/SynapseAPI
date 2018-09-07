@@ -25,7 +25,7 @@ public class Text extends PacketDecoder<TextPacket> {
             case TextPacket.TYPE_WHISPER:
             case TextPacket.TYPE_ANNOUNCEMENT:
                 this.putString(pk.source);
-                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_17.ordinal()) {
                     putString(""); //third party name
                     putVarInt(0); //platform id
                 }
@@ -47,7 +47,7 @@ public class Text extends PacketDecoder<TextPacket> {
                 }*/
         }
 
-        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_17.ordinal()) {
             putString(""); //platform id
         }
 
@@ -66,7 +66,7 @@ public class Text extends PacketDecoder<TextPacket> {
             case TextPacket.TYPE_ANNOUNCEMENT:
                 pk.source = this.getString();
 
-                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_17.ordinal()) {
                     getString();
                     getVarInt();
                 }
@@ -84,7 +84,7 @@ public class Text extends PacketDecoder<TextPacket> {
                 }
         }
 
-        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_17.ordinal()) {
             getString();
         }
     }

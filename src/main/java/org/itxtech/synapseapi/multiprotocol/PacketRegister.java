@@ -3,6 +3,7 @@ package org.itxtech.synapseapi.multiprotocol;
 import cn.nukkit.Server;
 import cn.nukkit.network.protocol.BatchPacket;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.MainLogger;
 import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.*;
@@ -126,6 +127,7 @@ public class PacketRegister {
         decoders[cn.nukkit.network.protocol.ProtocolInfo.LEVEL_EVENT_PACKET & 0xff] = LevelEvent.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.AVAILABLE_COMMANDS_PACKET & 0xff] = AvailableCommands.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.MOVE_ENTITY_PACKET & 0xff] = MoveEntity.class;
+        decoders[cn.nukkit.network.protocol.ProtocolInfo.RESOURCE_PACKS_INFO_PACKET & 0xff] = ResourcePacksInfo.class;
     }
 
     public static void registerPacket11(byte id, Class<? extends DataPacket> clazz) {
@@ -173,7 +175,7 @@ public class PacketRegister {
     public static DataPacket getFullPacket(byte[] data, ProtocolGroup protocol) {
         byte pid = data[0] == (byte) 0xfe ? (byte) 0xff : data[0];
 
-        byte start = (byte) (protocol == ProtocolGroup.PROTOCOL_11 || pid == BatchPacket.NETWORK_ID ? 1 : 3);
+        byte start = (byte) protocol.getBufferOffset();
 
         DataPacket pk = getPacket(pid, protocol);
         if (pk == null) {
@@ -190,6 +192,11 @@ public class PacketRegister {
 
     @SuppressWarnings("unchecked")
     public static boolean decodePacket(DataPacket pk, ProtocolGroup protocol) {
+        if (pk.pid() == BatchPacket.NETWORK_ID) {
+            pk.decode();
+            return true;
+        }
+
         if (protocol != ProtocolGroup.PROTOCOL_11) {
             try {
                 Class<? extends PacketDecoder<? extends DataPacket>> decoder = decoders[pk.pid() & 0xff];
@@ -212,6 +219,10 @@ public class PacketRegister {
 
     @SuppressWarnings("unchecked")
     public static boolean encodePacket(DataPacket pk, ProtocolGroup protocol) {
+        if (pk.pid() == BatchPacket.NETWORK_ID) {
+            pk.encode();
+            return true;
+        }
 
         if (protocol != ProtocolGroup.PROTOCOL_11) {
             try {
@@ -219,6 +230,14 @@ public class PacketRegister {
 
                 if (decoder != null) {
                     ((PacketDecoder<DataPacket>) decoder.newInstance()).encode(protocol, pk);
+
+                    if (protocol.ordinal() >= ProtocolGroup.PROTOCOL_16.ordinal()) {
+                        byte[] buffer = Binary.writeUnsignedVarInt(pk.pid());
+
+                        if (pk.getBuffer().length > 0) {
+                            pk.setBuffer(Binary.appendBytes(buffer, Binary.subBytes(pk.getBuffer(), 3)));
+                        }
+                    }
                     return true;
                 }
             } catch (Exception e) {
@@ -229,6 +248,12 @@ public class PacketRegister {
         }
 
         pk.encode();
+        if (protocol.ordinal() >= ProtocolGroup.PROTOCOL_16.ordinal()) {
+            if (pk.getBuffer().length > 0) {
+                byte[] buffer = Binary.writeUnsignedVarInt(pk.pid());
+                pk.setBuffer(Binary.appendBytes(buffer, Binary.subBytes(pk.getBuffer(), 3)));
+            }
+        }
         return true;
     }
 

@@ -4,6 +4,7 @@ import cn.nukkit.network.protocol.StartGamePacket;
 import cn.nukkit.utils.RuleData;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
+import org.itxtech.synapseapi.multiprotocol.protocol12.util.GlobalBlockPalette;
 
 /**
  * @author CreeperFace
@@ -75,6 +76,10 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
             putBoolean(false); //locked behavior pack
             putBoolean(false); //locked resource pack
             putBoolean(false); //from locked world template
+
+            if (group.ordinal() >= ProtocolGroup.PROTOCOL_17.ordinal()) {
+                putBoolean(false);
+            }
         }
 
         this.putString(pk.levelId);
@@ -83,6 +88,11 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
         this.putBoolean(pk.unknown); //is trial
         this.putLLong(pk.currentTick);
         this.putVarInt(pk.enchantmentSeed);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_16.ordinal()) {
+            this.put(GlobalBlockPalette.getCompiledTable(group));
+            this.putString(""); //multiplayer correlationId
+        }
 
         pk.setBuffer(getBuffer());
         return getBuffer();

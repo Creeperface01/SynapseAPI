@@ -29,7 +29,7 @@ public class PlayerList extends PacketDecoder<PlayerListPacket> {
                 this.putVarLong(entry.entityId);
                 this.putString(entry.name);
 
-                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+                if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_17.ordinal()) {
                     this.putString(""); //third party name
                     this.putVarInt(0); //platform id
                 }

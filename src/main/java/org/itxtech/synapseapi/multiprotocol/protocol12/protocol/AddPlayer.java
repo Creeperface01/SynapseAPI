@@ -22,7 +22,7 @@ public class AddPlayer extends PacketDecoder<AddPlayerPacket> {
         this.putUUID(pk.uuid);
         this.putString(pk.username);
 
-        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_17.ordinal()) {
             this.putString(""); //third party name
             this.putVarInt(0); //platform id
         }
@@ -42,6 +42,17 @@ public class AddPlayer extends PacketDecoder<AddPlayerPacket> {
         this.putSlot(pk.item);
 
         this.putMetadata(pk.metadata, group);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_16.ordinal()) {
+            this.putUnsignedVarInt(0); //TODO: Adventure settings
+            this.putUnsignedVarInt(0);
+            this.putUnsignedVarInt(0);
+            this.putUnsignedVarInt(0);
+            this.putUnsignedVarInt(0);
+            this.putLLong(pk.entityUniqueId);
+            this.putUnsignedVarInt(0); //TODO: Entity links
+            this.putString("");
+        }
 
         pk.setBuffer(getBuffer());
         return getBuffer();
