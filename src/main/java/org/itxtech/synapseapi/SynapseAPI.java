@@ -200,7 +200,7 @@ public class SynapseAPI extends PluginBase implements Listener {
         }
 
         for (Entry<SynapseEntry, List<Player>> entry : map.entrySet()) {
-            entry.getKey().getSynapseInterface().getPutPacketThread().addMainToThreadBroadcast(entry.getValue().stream().toArray(Player[]::new), packets);
+            entry.getKey().getSynapseInterface().getPutPacketThread().addMainToThreadBroadcast(entry.getValue().toArray(new Player[0]), packets);
         }
 
         /*for(DataPacket pk : packets) {

@@ -44,17 +44,23 @@ public class GlobalBlockPalette {
                 }.getType();
                 Collection<TableEntry> entries = gson.fromJson(reader, collectionType);
 
-                BinaryStream table = new BinaryStream();
+                if (group.ordinal() < ProtocolGroup.PROTOCOL_16.ordinal()) {
+                    for (TableEntry entry : entries) {
+                        registerMapping(group, entry.runtimeID, (entry.id << 4) | entry.data);
+                    }
+                } else {
+                    BinaryStream table = new BinaryStream();
 
-                table.putUnsignedVarInt(entries.size());
+                    table.putUnsignedVarInt(entries.size());
 
-                for (TableEntry entry : entries) {
-                    registerMapping(group, entry.runtimeID, (entry.id << 4) | entry.data);
-                    table.putString(entry.name);
-                    table.putLShort(entry.data);
+                    for (TableEntry entry : entries) {
+                        registerMapping(group, (entry.id << 4) | entry.data);
+                        table.putString(entry.name);
+                        table.putLShort(entry.data);
+                    }
+
+                    compiledTables.put(group, table.getBuffer());
                 }
-
-                compiledTables.put(group, table.getBuffer());
             }
         } catch (Exception e) {
             MainLogger.getLogger().logException(e);
@@ -73,21 +79,34 @@ public class GlobalBlockPalette {
             runtimeId = registerMapping(group, entry.runtimeIdAllocator.incrementAndGet(), legacyId);
             MainLogger.getLogger().warning("Unmapped block registered (" + legacyId + "). May not be recognised client-side");
         }
+
         return runtimeId;
     }
 
+    private static int registerMapping(ProtocolGroup group, int legacyId) {
+        VersionEntry entry = getVersionEntry(group);
+
+        return registerMapping(group, entry.runtimeIdAllocator.getAndIncrement(), legacyId);
+    }
+
     private static int registerMapping(ProtocolGroup group, int runtimeId, int legacyId) {
-        VersionEntry versionEntry = versions.get(group);
-        if (versionEntry == null) {
-            versionEntry = new VersionEntry();
-            versions.put(group, versionEntry);
-        }
+        VersionEntry versionEntry = getVersionEntry(group);
 
         versionEntry.runtimeIdToLegacy.put(runtimeId, legacyId);
         versionEntry.legacyToRuntimeId.put(legacyId, runtimeId);
         versionEntry.runtimeIdAllocator.set(Math.max(versionEntry.runtimeIdAllocator.get(), runtimeId));
 
         return runtimeId;
+    }
+
+    private static VersionEntry getVersionEntry(ProtocolGroup group) {
+        VersionEntry versionEntry = versions.get(group);
+        if (versionEntry == null) {
+            versionEntry = new VersionEntry();
+            versions.put(group, versionEntry);
+        }
+
+        return versionEntry;
     }
 
     public static byte[] getCompiledTable(ProtocolGroup group) {

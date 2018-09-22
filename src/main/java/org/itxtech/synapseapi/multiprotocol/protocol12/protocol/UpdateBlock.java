@@ -21,7 +21,11 @@ public class UpdateBlock extends PacketDecoder<UpdateBlockPacket> {
         reset();
         this.putBlockVector3(pk.x, pk.y, pk.z);
         if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
-            putUnsignedVarInt(GlobalBlockPalette.getOrCreateRuntimeId(group, pk.blockId, pk.blockData));
+            int runtimeId = GlobalBlockPalette.getOrCreateRuntimeId(group, pk.blockId, pk.blockData);
+
+//            MainLogger.getLogger().info("legacy id: "+((pk.blockId << 4) | pk.blockData)+", runtime id: "+runtimeId);
+
+            putUnsignedVarInt(runtimeId);
             putUnsignedVarInt(pk.flags);
         } else {
             putUnsignedVarInt(pk.blockId);
