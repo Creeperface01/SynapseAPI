@@ -176,7 +176,6 @@ public class SynapsePlayer extends Player {
         }
 
         this.adventureSettings = new AdventureSettings(this)
-                .set(Type.WORLD_IMMUTABLE, !isAdventure())
                 .set(Type.AUTO_JUMP, true)
                 .set(Type.ALLOW_FLIGHT, isCreative())
                 .set(Type.NO_CLIP, isSpectator());
@@ -301,7 +300,7 @@ public class SynapsePlayer extends Player {
             this.dataPacket(startGamePacket);
         } else {
             AdventureSettings newSettings = this.getAdventureSettings().clone(this);
-            newSettings.set(AdventureSettings.Type.WORLD_IMMUTABLE, gamemode != 3);
+//            newSettings.set(AdventureSettings.Type.WORLD_IMMUTABLE, gamemode == 3);
             newSettings.set(AdventureSettings.Type.ALLOW_FLIGHT, (gamemode & 0x01) > 0);
             newSettings.set(AdventureSettings.Type.NO_CLIP, gamemode == 0x03);
             newSettings.set(AdventureSettings.Type.FLYING, gamemode == 0x03);

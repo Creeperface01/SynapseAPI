@@ -25,7 +25,7 @@ public class ChunkCompressor implements ChunkCacher {
         Map<ProtocolGroup, DataPacket> packets = new EnumMap<>(ProtocolGroup.class);
 
         {
-            FullChunkDataPacket packet = new FullChunkDataPacket();
+            cn.nukkit.network.protocol.FullChunkDataPacket packet = new cn.nukkit.network.protocol.FullChunkDataPacket();
             packet.chunkX = x;
             packet.chunkZ = z;
             packet.data = payload;
@@ -35,7 +35,7 @@ public class ChunkCompressor implements ChunkCacher {
         }
 
         {
-            cn.nukkit.network.protocol.FullChunkDataPacket packet = new cn.nukkit.network.protocol.FullChunkDataPacket();
+            FullChunkDataPacket packet = new FullChunkDataPacket();
             packet.chunkX = x;
             packet.chunkZ = z;
             packet.data = payload11;
@@ -49,7 +49,7 @@ public class ChunkCompressor implements ChunkCacher {
     private DataPacket compress(DataPacket pk, ProtocolGroup protocol) {
         pk.encode();
         pk.isEncoded = true;
-        pk.setBuffer(Binary.appendBytes(protocol.ordinal() >= ProtocolGroup.PROTOCOL_16.ordinal() ? new byte[]{pk.pid()} : Binary.writeUnsignedVarInt(pk.pid()), Binary.subBytes(pk.getBuffer(), protocol.getBufferOffset())));
+        pk.setBuffer(Binary.appendBytes(protocol.ordinal() < ProtocolGroup.PROTOCOL_16.ordinal() ? new byte[]{pk.pid()} : Binary.writeUnsignedVarInt(pk.pid()), Binary.subBytes(pk.getBuffer(), protocol.getBufferOffset())));
 
 //        BatchPacket batch = new BatchPacket(); //don't need to compile if nemisys is on local network
 //        byte[][] batchPayload = new byte[2][];

@@ -152,7 +152,7 @@ public class MVChunkRequestManager implements ChunkRequestManager {
         DataPacket pk;
 
         if (group == ProtocolGroup.PROTOCOL_11) {
-            pk = packets.get(group);
+            pk = packets.get(ProtocolGroup.PROTOCOL_11);
         } else if (group.ordinal() > ProtocolGroup.PROTOCOL_11.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_16.ordinal()) {
             pk = packets.get(ProtocolGroup.PROTOCOL_12);
         } else {

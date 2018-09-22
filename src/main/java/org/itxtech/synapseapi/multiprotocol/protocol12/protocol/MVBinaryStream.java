@@ -57,6 +57,10 @@ public class MVBinaryStream extends BinaryStream {
                     flags ^= 1L << 47;
                 }
 
+                if (protocol.ordinal() >= ProtocolGroup.PROTOCOL_17.ordinal()) {
+                    flags = (flags & 0xFFFFFFF) | ((flags >> 28) << 29);
+                }
+
                 newData.put(Entity.DATA_FLAGS, new LongEntityData(Entity.DATA_FLAGS, flags));
             }
 
