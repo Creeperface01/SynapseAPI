@@ -36,7 +36,7 @@ public class MVBinaryStream extends BinaryStream {
 
                     if (id == 29) {
                         id = 26;
-                    } else {
+                    } else if (id <= 76) { //ops now we can't use ID 76
                         id--;
                     }
                 }
@@ -70,6 +70,20 @@ public class MVBinaryStream extends BinaryStream {
             for(Entry<Integer, EntityData> entry : dataMap.entrySet()) {
                 MainLogger.getLogger().info(entry.getValue().getClass().getSimpleName()+" ("+entry.getKey()+"):"+entry.getValue().getType());
             }*/
+        } else {
+            Map<Integer, EntityData> newData = new HashMap<>();
+
+            for (Entry<Integer, EntityData> entry : dataMap.entrySet()) {
+                int id = entry.getKey();
+
+                if (id > 75) {
+                    id--;
+                }
+
+                newData.put(id, entry.getValue());
+            }
+
+            dataMap = newData;
         }
 
         putUnsignedVarInt(dataMap.size());
