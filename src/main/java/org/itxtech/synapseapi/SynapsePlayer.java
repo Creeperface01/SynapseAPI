@@ -31,6 +31,8 @@ import lombok.Getter;
 import org.itxtech.synapseapi.event.player.SynapsePlayerConnectEvent;
 import org.itxtech.synapseapi.event.player.SynapsePlayerTransferEvent;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
+import org.itxtech.synapseapi.network.protocol.mcpe.AvailableEntityIdentifiersPacket;
+import org.itxtech.synapseapi.network.protocol.mcpe.NetworkChunkPublisherUpdatePacket;
 import org.itxtech.synapseapi.network.protocol.spp.PlayerLoginPacket;
 import org.itxtech.synapseapi.runnable.TransferRunnable;
 import org.itxtech.synapseapi.utils.ClientData;
@@ -298,6 +300,10 @@ public class SynapsePlayer extends Player {
             startGamePacket.generator = 1; //0 old, 1 infinite, 2 flat
             startGamePacket.enchantmentSeed = new Random().nextInt();
             this.dataPacket(startGamePacket);
+
+            if (this.protocolGroup.ordinal() >= ProtocolGroup.PROTOCOL_18.ordinal()) {
+                this.dataPacket(new AvailableEntityIdentifiersPacket());
+            }
         } else {
             AdventureSettings newSettings = this.getAdventureSettings().clone(this);
 //            newSettings.set(AdventureSettings.Type.WORLD_IMMUTABLE, gamemode == 3);
@@ -685,5 +691,21 @@ public class SynapsePlayer extends Player {
                 return false;
             }
         }
+    }
+
+    @Override
+    protected boolean orderChunks() {
+        boolean r = super.orderChunks();
+
+        if (r) {
+            if (!loadQueue.isEmpty()) {
+                NetworkChunkPublisherUpdatePacket packet = new NetworkChunkPublisherUpdatePacket();
+                packet.position = this.asBlockVector3();
+                packet.radius = viewDistance << 4;
+                this.dataPacket(packet);
+            }
+        }
+
+        return r;
     }
 }

@@ -78,7 +78,12 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
             putBoolean(false); //from locked world template
 
             if (group.ordinal() >= ProtocolGroup.PROTOCOL_17.ordinal()) {
-                putBoolean(false);
+                putBoolean(false); //using msa gamertags only
+
+                if (group.ordinal() >= ProtocolGroup.PROTOCOL_18.ordinal()) {
+                    putBoolean(false); //from world template
+                    putBoolean(false); // locked world template
+                }
             }
         }
 

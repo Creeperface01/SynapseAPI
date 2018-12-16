@@ -47,7 +47,7 @@ public class MVBinaryStream extends BinaryStream {
             if (newData.containsKey(Entity.DATA_FLAGS)) {
                 long flags = data.getLong(Entity.DATA_FLAGS);
 
-                long firstPart = flags & 0b1111111111111111111111;
+                long firstPart = flags & 0b1111111111111111111111; //22 bits
                 long midPart = ((flags >> 22) & 0b111111111111111111111) << (22 + 1); //22 flags and 1 offset
 
                 flags = (flags >> 43 << 43) | firstPart | midPart;
@@ -58,7 +58,7 @@ public class MVBinaryStream extends BinaryStream {
                 }
 
                 if (protocol.ordinal() >= ProtocolGroup.PROTOCOL_17.ordinal()) {
-                    flags = (flags & 0xFFFFFFF) | ((flags >> 28) << 29);
+                    flags = (flags & 0xFFFFFFF /*28 bits*/) | ((flags >> 28) << 29);
                 }
 
                 newData.put(Entity.DATA_FLAGS, new LongEntityData(Entity.DATA_FLAGS, flags));
@@ -77,7 +77,7 @@ public class MVBinaryStream extends BinaryStream {
                 int id = entry.getKey();
 
                 if (id > 75) {
-                    id--;
+                    id++;
                 }
 
                 newData.put(id, entry.getValue());

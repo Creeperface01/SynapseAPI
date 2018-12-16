@@ -3,6 +3,7 @@ package org.itxtech.synapseapi.multiprotocol.protocol12.protocol;
 import cn.nukkit.network.protocol.AddEntityPacket;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
+import org.itxtech.synapseapi.multiprotocol.protocol12.entity.EntityUtils;
 
 /**
  * @author CreeperFace
@@ -19,7 +20,11 @@ public class AddEntity extends PacketDecoder<AddEntityPacket> {
         this.reset();
         this.putEntityUniqueId(pk.entityUniqueId);
         this.putEntityRuntimeId(pk.entityRuntimeId);
-        this.putUnsignedVarInt(pk.type);
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_18.ordinal()) {
+            this.putString(EntityUtils.getEntityLegacyId(pk.type));
+        } else {
+            this.putUnsignedVarInt(pk.type);
+        }
         this.putVector3f(pk.x, pk.y, pk.z);
         this.putVector3f(pk.speedX, pk.speedY, pk.speedZ);
         this.putLFloat(pk.pitch);

@@ -18,9 +18,9 @@ import org.itxtech.synapseapi.multiprotocol.protocol11.chunk.ChunkCompressor;
 import org.itxtech.synapseapi.multiprotocol.protocol11.chunk.MVChunkRequestManager;
 import org.itxtech.synapseapi.multiprotocol.protocol11.inventory.crafting.CraftingManager11;
 import org.itxtech.synapseapi.multiprotocol.protocol11.item.Item11;
-import org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo;
 import org.itxtech.synapseapi.multiprotocol.protocol12.util.GlobalBlockPalette;
-import org.itxtech.synapseapi.network.protocol.mcpe.SetHealthPacket;
+import org.itxtech.synapseapi.network.protocol.mcpe.AvailableEntityIdentifiersPacket;
+import org.itxtech.synapseapi.network.protocol.mcpe.NetworkChunkPublisherUpdatePacket;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -34,7 +34,7 @@ public class SynapseAPI extends PluginBase implements Listener {
     private static SynapseAPI instance;
     private boolean autoConnect = true;
     private boolean loadingScreen = true;
-    private boolean autoCompress = true;  //Compress in Nukkit, not Nemisys
+    private boolean autoCompress = false;  //Compress in Nukkit, not Nemisys
     private Map<String, SynapseEntry> synapseEntries = new HashMap<>();
     private Messenger messenger;
 
@@ -52,12 +52,14 @@ public class SynapseAPI extends PluginBase implements Listener {
     public void onLoad() {
         instance = this;
 
+        getServer().getNetwork().registerPacket(NetworkChunkPublisherUpdatePacket.NETWORK_ID, NetworkChunkPublisherUpdatePacket.class);
+        getServer().getNetwork().registerPacket(AvailableEntityIdentifiersPacket.NETWORK_ID, AvailableEntityIdentifiersPacket.class);
+
         GlobalBlockPalette.getOrCreateRuntimeId(ProtocolGroup.PROTOCOL_1213, 0, 0); //Force it to load
     }
 
     @Override
     public void onEnable() {
-        this.getServer().getNetwork().registerPacket(ProtocolInfo.SET_HEALTH_PACKET, SetHealthPacket.class);
         this.messenger = new StandardMessenger();
         loadEntries();
 

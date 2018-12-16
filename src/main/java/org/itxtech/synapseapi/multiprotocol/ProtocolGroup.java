@@ -15,7 +15,9 @@ public enum ProtocolGroup {
     PROTOCOL_14(261, 269, 3),
     PROTOCOL_15(270, 279, 3),
     PROTOCOL_16(280, 289, 1), //TODO: not entirely right
-    PROTOCOL_17(290, 299, 1);
+    PROTOCOL_17(290, 291, 1),
+    PROTOCOL_18(310, 313, 1),
+    PROTOCOL_19(330, 332, 1);
 
     private final int minProtocol;
     private final int maxProtocol;
