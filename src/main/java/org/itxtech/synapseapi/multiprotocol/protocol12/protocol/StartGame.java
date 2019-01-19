@@ -43,6 +43,11 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
 
         this.putLFloat(pk.rainLevel);
         this.putLFloat(pk.lightningLevel);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_191.ordinal()) {
+            putByte((byte) 0); //?
+        }
+
         this.putBoolean(pk.multiplayerGame);
         this.putBoolean(pk.broadcastToLAN);
         this.putBoolean(pk.broadcastToXboxLive);

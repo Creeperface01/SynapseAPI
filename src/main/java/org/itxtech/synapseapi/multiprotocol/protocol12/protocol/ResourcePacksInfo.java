@@ -21,7 +21,16 @@ public class ResourcePacksInfo extends PacketDecoder<ResourcePacksInfoPacket> {
         this.putBoolean(pk.mustAccept);
 
         encodePacks(pk.resourcePackEntries, group);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_19.ordinal()) {
+            putByte((byte) 0); //?
+        }
+
         encodePacks(pk.behaviourPackEntries, group);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_19.ordinal()) {
+            putByte((byte) 0); //?
+        }
 
         pk.setBuffer(getBuffer());
         return this.getBuffer();
