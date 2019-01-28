@@ -1844,6 +1844,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
                             if (stackPacket.resourcePackStack.length == 0) {
                                 if (preLoginEventTask.isFinished()) {
+                                    this.dataPacket(stackPacket);
                                     this.processLogin();
                                 } else {
                                     this.shouldLogin = true;
