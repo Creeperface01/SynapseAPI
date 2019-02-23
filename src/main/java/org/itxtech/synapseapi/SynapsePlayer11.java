@@ -1548,7 +1548,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                 startGamePacket.yaw = (float) this.yaw;
                 startGamePacket.pitch = (float) this.pitch;
                 startGamePacket.seed = -1;
-                startGamePacket.dimension = (byte) (this.level.getDimension() & 0xff);
+                startGamePacket.dimension = (byte) (this.level.getDimension().ordinal() & 0xff);
                 startGamePacket.gamemode = getClientFriendlyGamemode(this.gamemode);
                 startGamePacket.difficulty = this.server.getDifficulty();
                 startGamePacket.spawnX = (int) spawnPosition.x;
@@ -4398,7 +4398,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
     public void setDimension(int dimension) {
         org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ChangeDimensionPacket pk = new org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ChangeDimensionPacket();
-        pk.dimension = getLevel().getDimension();
+        pk.dimension = getLevel().getDimension().ordinal();
         this.dataPacket(pk);
     }
 

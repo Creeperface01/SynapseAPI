@@ -50,7 +50,13 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
 
         this.putBoolean(pk.multiplayerGame);
         this.putBoolean(pk.broadcastToLAN);
-        this.putBoolean(pk.broadcastToXboxLive);
+
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_191.ordinal()) {
+            this.putVarInt(0); //xblBroadcastIntent
+            this.putVarInt(0); //platformBroadcastIntent
+        } else {
+            this.putBoolean(pk.broadcastToXboxLive);
+        }
         this.putBoolean(pk.commandsEnabled);
         this.putBoolean(pk.isTexturePacksRequired);
         this.putUnsignedVarInt(pk.ruleDatas.length);
@@ -63,15 +69,19 @@ public class StartGame extends PacketDecoder<StartGamePacket> {
             putBoolean(false); //start with map enabled
         }
 
-        this.putBoolean(pk.trustPlayers);
+        if (group.ordinal() < ProtocolGroup.PROTOCOL_191.ordinal()) {
+            this.putBoolean(pk.trustPlayers);
+        }
         this.putVarInt(pk.permissionLevel);
-        this.putVarInt(pk.gamePublish);
+        if (group.ordinal() < ProtocolGroup.PROTOCOL_191.ordinal()) {
+            this.putVarInt(pk.gamePublish);
+        }
 
         if (group.ordinal() >= ProtocolGroup.PROTOCOL_1210.ordinal()) {
             putLInt(0); //chunk tick range
         }
 
-        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal()) {
+        if (group.ordinal() >= ProtocolGroup.PROTOCOL_1213.ordinal() && group.ordinal() < ProtocolGroup.PROTOCOL_191.ordinal()) {
             putBoolean(false); //broadcast to platform
             putVarInt(0); //platform broadcast mode
             putBoolean(false); //xbl broadcast intent
