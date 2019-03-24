@@ -98,6 +98,10 @@ public class AvailableCommands extends PacketDecoder<AvailableCommandsPacket> {
                     int type = getLInt();
                     boolean optional = getBoolean();
 
+                    if (group.ordinal() >= ProtocolGroup.PROTOCOL_110.ordinal()) {
+                        getByte(); //bit flags
+                    }
+
                     CommandParameter parameter = new CommandParameter(paramName, optional);
                     cn.nukkit.command.data.CommandParamType paramType = cn.nukkit.command.data.CommandParamType.RAWTEXT;
 
@@ -245,6 +249,10 @@ public class AvailableCommands extends PacketDecoder<AvailableCommandsPacket> {
 
                     putLInt(type);
                     putBoolean(parameter.optional);
+
+                    if (group.ordinal() >= ProtocolGroup.PROTOCOL_110.ordinal()) {
+                        putByte((byte) 0); //bit flags
+                    }
                 }
             }
         });
