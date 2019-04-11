@@ -73,8 +73,13 @@ public class AddEntityPacket extends Packet11 {
         this.pitch = apk.pitch;
         this.metadata = apk.metadata;
         this.attributes = apk.attributes;
-        this.links = apk.links;
-        this.attributes = apk.attributes;
+        this.links = new Object[apk.links.length][3];
+
+        for (int i = 0; i < this.links.length; i++) {
+            this.links[i][0] = apk.links[i].fromEntityUniquieId;
+            this.links[i][1] = apk.links[i].toEntityUniquieId;
+            this.links[i][2] = apk.links[i].type;
+        }
 
         return this;
     }

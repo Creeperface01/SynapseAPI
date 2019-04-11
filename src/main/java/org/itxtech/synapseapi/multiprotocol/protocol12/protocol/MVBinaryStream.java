@@ -52,10 +52,10 @@ public class MVBinaryStream extends BinaryStream {
 
                 flags = (flags >> 43 << 43) | firstPart | midPart;
 
-                if (((flags >> 46) & 1) > 0) { //gravity
-                    flags ^= 1L << 46;
-                    flags ^= 1L << 47;
-                }
+//                if (((flags >> 46) & 1) > 0) { //gravity
+//                    flags ^= 1L << 46;
+//                    flags ^= 1L << 47;
+//                }
 
                 if (protocol.ordinal() >= ProtocolGroup.PROTOCOL_17.ordinal()) {
                     flags = (flags & 0xFFFFFFF /*28 bits*/) | ((flags >> 28) << 29);
@@ -81,6 +81,18 @@ public class MVBinaryStream extends BinaryStream {
                 }
 
                 newData.put(id, entry.getValue());
+            }
+
+            if (newData.containsKey(Entity.DATA_FLAGS)) {
+                long flags = data.getLong(Entity.DATA_FLAGS);
+
+                if (((flags >> 47) & 0x01) == 1) { //new gravity flag is set and need to be convert for lower versions
+                    flags ^= 1L << 47; //invert gravity flag
+
+                    flags |= 1L << 46; //set the old gravity flag
+                }
+
+                newData.put(Entity.DATA_FLAGS, new LongEntityData(Entity.DATA_FLAGS, flags));
             }
 
             dataMap = newData;

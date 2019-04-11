@@ -20,10 +20,11 @@ public class Animate extends PacketDecoder<AnimatePacket> {
     @Override
     public byte[] encode(ProtocolGroup group, AnimatePacket pk) {
         this.reset();
-        this.putVarInt(pk.action);
+        this.putVarInt(pk.action.getId());
         this.putEntityRuntimeId(pk.eid);
-        if ((pk.action & 128) != 0) {
-            this.putLFloat(pk.unknown);
+
+        if (pk.action == AnimatePacket.Action.ROW_LEFT || pk.action == AnimatePacket.Action.ROW_RIGHT) {
+            this.putLFloat(pk.rowingTime);
         }
 
         pk.setBuffer(getBuffer());
@@ -32,10 +33,11 @@ public class Animate extends PacketDecoder<AnimatePacket> {
 
     @Override
     public void decode(ProtocolGroup group, AnimatePacket pk) {
-        pk.action = this.getVarInt();
+        pk.action = AnimatePacket.Action.fromId(this.getVarInt());
         pk.eid = this.getEntityRuntimeId();
-        if ((pk.action & 128) != 0) {
-            pk.unknown = this.getLFloat();
+
+        if (pk.action == AnimatePacket.Action.ROW_LEFT || pk.action == AnimatePacket.Action.ROW_RIGHT) {
+            pk.rowingTime = getLFloat();
         }
     }
 }

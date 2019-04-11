@@ -1,6 +1,7 @@
 package org.itxtech.synapseapi.multiprotocol.protocol12.protocol;
 
 import cn.nukkit.network.protocol.AddEntityPacket;
+import cn.nukkit.network.protocol.types.EntityLink;
 import org.itxtech.synapseapi.multiprotocol.PacketDecoder;
 import org.itxtech.synapseapi.multiprotocol.ProtocolGroup;
 import org.itxtech.synapseapi.multiprotocol.protocol12.entity.EntityUtils;
@@ -37,10 +38,9 @@ public class AddEntity extends PacketDecoder<AddEntityPacket> {
         this.putAttributeList(pk.attributes);
         this.putMetadata(pk.metadata, group);
         this.putUnsignedVarInt(pk.links.length);
-        for (Object[] link : pk.links) {
-            this.putVarLong((long) link[0]);
-            this.putVarLong((long) link[1]);
-            this.putByte((byte) link[2]);
+
+        for (EntityLink link : pk.links) {
+            putEntityLink(link);
         }
 
         pk.setBuffer(getBuffer());

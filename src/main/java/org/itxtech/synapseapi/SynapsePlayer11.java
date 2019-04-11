@@ -273,7 +273,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                 pkk.rider = this.riding.getId();
                 pkk.riding = this.getId();
                 pkk.type = 1;
-                pkk.unknownByte = 1;
+                pkk.immediate = 1;
 
                 player.dataPacket(pkk);
             }
@@ -2719,7 +2719,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
                         break;
                     }
 
-                    PlayerAnimationEvent animationEvent = new PlayerAnimationEvent(this, ((org.itxtech.synapseapi.multiprotocol.protocol11.protocol.AnimatePacket) packet).action);
+                    PlayerAnimationEvent animationEvent = new PlayerAnimationEvent(this, cn.nukkit.network.protocol.AnimatePacket.Action.fromId(((org.itxtech.synapseapi.multiprotocol.protocol11.protocol.AnimatePacket) packet).action));
                     this.server.getPluginManager().callEvent(animationEvent);
                     if (animationEvent.isCancelled()) {
                         break;
@@ -2727,7 +2727,7 @@ public class SynapsePlayer11 extends SynapsePlayer {
 
                     org.itxtech.synapseapi.multiprotocol.protocol11.protocol.AnimatePacket animatePacket = new org.itxtech.synapseapi.multiprotocol.protocol11.protocol.AnimatePacket();
                     animatePacket.eid = this.getId();
-                    animatePacket.action = animationEvent.getAnimationType();
+                    animatePacket.action = animationEvent.getAnimationType().getId();
                     Server.broadcastPacket(this.getViewers().values(), animatePacket);
                     break;
                 case org.itxtech.synapseapi.multiprotocol.protocol11.protocol.ProtocolInfo.SET_HEALTH_PACKET:

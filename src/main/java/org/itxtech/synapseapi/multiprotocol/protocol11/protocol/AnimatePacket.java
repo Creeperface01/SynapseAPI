@@ -19,16 +19,16 @@ public class AnimatePacket extends Packet11 {
 
         cn.nukkit.network.protocol.AnimatePacket pk = (cn.nukkit.network.protocol.AnimatePacket) pkk;
         this.eid = pk.eid;
-        this.action = pk.action;
-        this.unknown = pk.unknown;
+        this.action = pk.action.getId();
+        this.unknown = pk.rowingTime;
         return this;
     }
 
     public cn.nukkit.network.protocol.AnimatePacket toDefault() {
         cn.nukkit.network.protocol.AnimatePacket pk = new cn.nukkit.network.protocol.AnimatePacket();
         pk.eid = eid;
-        pk.action = action;
-        pk.unknown = unknown;
+        pk.action = cn.nukkit.network.protocol.AnimatePacket.Action.fromId(action);
+        pk.rowingTime = unknown;
         return pk;
     }
 
