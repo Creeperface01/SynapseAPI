@@ -41,6 +41,10 @@ public class MVBinaryStream extends BinaryStream {
                     }
                 }
 
+                if(id >= 40 && protocol.ordinal() >= ProtocolGroup.PROTOCOL_111.ordinal()) {
+                    id++;
+                }
+
                 newData.put(id, entry.getValue());
             }
 

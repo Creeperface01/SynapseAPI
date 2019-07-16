@@ -128,6 +128,7 @@ public class PacketRegister {
         decoders[cn.nukkit.network.protocol.ProtocolInfo.AVAILABLE_COMMANDS_PACKET & 0xff] = AvailableCommands.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.MOVE_ENTITY_PACKET & 0xff] = MoveEntity.class;
         decoders[cn.nukkit.network.protocol.ProtocolInfo.RESOURCE_PACKS_INFO_PACKET & 0xff] = ResourcePacksInfo.class;
+        decoders[cn.nukkit.network.protocol.ProtocolInfo.CRAFTING_DATA_PACKET & 0xff] = CraftingData.class;
     }
 
     public static void registerPacket11(byte id, Class<? extends DataPacket> clazz) {
